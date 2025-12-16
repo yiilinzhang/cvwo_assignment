@@ -7,22 +7,22 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-func ListUser(conn *pgx.Conn) ([]models.User, error) {
+func ListTopic(conn *pgx.Conn) ([]models.Topic, error) {
 	rows, err := conn.Query(context.Background(),
-        "SELECT userid, name FROM users",
+        "SELECT topic_id, title FROM topic",
     )
 	if err != nil {
     return nil, err
 	}
 	defer rows.Close()
-	users := []models.User{}
+	topic := []models.Topic{}
 	for rows.Next() {
-		var u models.User
-		err :=rows.Scan(&u.ID, &u.Name)
+		var t models.Topic
+		err :=rows.Scan(&t.ID, &t.Title)
 		if err != nil {
     	return nil, err
 		}
-		users = append(users, u)
+		topic = append(topic, t)
 	}
-	return users, nil
+	return topic, nil
 }

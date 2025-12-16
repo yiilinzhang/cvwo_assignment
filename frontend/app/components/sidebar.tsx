@@ -1,5 +1,5 @@
 import { List } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const topicList = ["Tech", "Game", "Fashion"];
 

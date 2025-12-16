@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/CVWO/sample-go-app/internal/api"
-	users "github.com/CVWO/sample-go-app/internal/dataaccess"
-	"github.com/CVWO/sample-go-app/internal/database"
+	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
+	"github.com/yiilinzhang/cvwo_assignment/internal/api"
+	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
 )
 
 const (
@@ -20,19 +20,13 @@ const (
 	ErrEncodeView              = "Failed to retrieve users in %s"
 )
 
-func HandleList(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	db, err := database.GetDB()
-
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveDatabase, ListUsers))
-	}
-
-	users, err := users.List(db)
+func HandleList(conn *pgx.Conn, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	userList, err := dataaccess.ListUser(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
 	}
 
-	data, err := json.Marshal(users)
+	data, err := json.Marshal(userList)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListUsers))
 	}
