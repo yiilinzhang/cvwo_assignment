@@ -15,14 +15,19 @@ import (
 
 
 func main() {
-	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
-	r := router.Setup(pool)
 	databaseURL := os.Getenv("DATABASE_URL")
-	fmt.Println("Database URL:", databaseURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+	if databaseURL == "" {
+		fmt.Fprintf(os.Stderr, "DATABASE_URL is empty")
 		os.Exit(1)
 	}
+	fmt.Println("Database URL:", databaseURL)
+
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Pool connection failed: %v\n", err)
+		os.Exit(1)
+	}
+	r := router.Setup(pool)
 	defer pool.Close()
 
 	fmt.Print("Listening on port 8000 at http://localhost:8000!")
