@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/topics"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/users"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/posts"
 )
 
-func GetRoutes(conn *pgx.Conn) func(r chi.Router) {
+func GetRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 	return func(r chi.Router) {
 		r.Get("/users", func(w http.ResponseWriter, req *http.Request) {
 			response, err := users.HandleList(conn, w, req)

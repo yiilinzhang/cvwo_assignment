@@ -9,21 +9,21 @@ import (
 	
 
 	//"github.com/joho/godotenv"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/router"
 )
 
 
 func main() {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	r := router.Setup(conn)
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	r := router.Setup(pool)
 	databaseURL := os.Getenv("DATABASE_URL")
 	fmt.Println("Database URL:", databaseURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
+	defer pool.Close()
 
 	fmt.Print("Listening on port 8000 at http://localhost:8000!")
 	log.Fatalln(http.ListenAndServe(":8000", r))

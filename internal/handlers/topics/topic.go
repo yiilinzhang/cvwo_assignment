@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
@@ -20,7 +20,7 @@ const (
 	ErrEncodeView              = "Failed to retrieve topics in %s"
 )
 
-func HandleList(conn *pgx.Conn, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func HandleList(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	topicList, err := dataaccess.ListTopic(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))

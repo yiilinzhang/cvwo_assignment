@@ -3,11 +3,11 @@ package router
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/routes"
 )
 
-func Setup(conn *pgx.Conn) chi.Router {
+func Setup(conn *pgxpool.Pool) chi.Router {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
@@ -21,6 +21,6 @@ func Setup(conn *pgx.Conn) chi.Router {
 	return r
 }
 
-func setUpRoutes(r chi.Router, conn *pgx.Conn) {
+func setUpRoutes(r chi.Router, conn *pgxpool.Pool) {
 	r.Group(routes.GetRoutes(conn))
 }

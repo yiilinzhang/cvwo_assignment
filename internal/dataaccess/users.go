@@ -3,11 +3,11 @@ package dataaccess
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-func ListUser(conn *pgx.Conn) ([]models.User, error) {
+func ListUser(conn *pgxpool.Pool) ([]models.User, error) {
 	rows, err := conn.Query(context.Background(),
         "SELECT userid, name FROM users",
     )

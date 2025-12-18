@@ -3,11 +3,11 @@ package dataaccess
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-func ListPost(conn *pgx.Conn) ([]models.Post, error) {
+func ListPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	rows, err := conn.Query(context.Background(),
         "SELECT post_id, title, content, user_id, topic_id FROM post",
     )
