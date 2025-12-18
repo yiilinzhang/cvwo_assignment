@@ -12,6 +12,7 @@ import (
 )
 
 func GetRoutes(conn *pgxpool.Pool) func(r chi.Router) {
+	//TODO see if there is a way to modularise this code
 	return func(r chi.Router) {
 		r.Get("/users", func(w http.ResponseWriter, req *http.Request) {
 			response, err := users.HandleList(conn, w, req)
