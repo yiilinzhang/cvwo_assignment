@@ -6,7 +6,8 @@ export function PostList() {
               queryKey: [`posts`], 
               queryFn: getPosts
           })
-  return (<div className="w-full h-full flex flex-col items-center gap-8 py-6">
+  return (<div className="flex flex-col items-center gap-8 py-6 px-20">
+    <text className="text-4xl font-bold w-full ">All topics</text>
     {data?.payload.data.map((post) => <Post title={post.title} content={post.content} owner={true}/>)}
   </div>
 );
