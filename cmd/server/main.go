@@ -15,6 +15,8 @@ import (
 
 
 func main() {
+	//TODO stop using temp database url implmeent .env
+	//TODO change error cahcting to the fmt.fatalln, double check this exits
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
 		fmt.Fprintf(os.Stderr, "DATABASE_URL is empty")

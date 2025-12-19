@@ -15,14 +15,14 @@ import (
 type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
 
 func GetRoutes(conn *pgxpool.Pool) func(r chi.Router) {
-	//TODO see if there is a way to modularise this code
 	return func(r chi.Router) {
 		r.Get("/users", Routing(conn, users.HandleList))
 		r.Get("/topics", Routing(conn, topics.HandleList))
-		r.Get("/posts", Routing(conn, posts.HandleList))
+		r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
 	}
 }
 
+//TODO double check this code again
 func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
 		return func(w http.ResponseWriter, req *http.Request) {
 			response, err := HandleList(conn, w, req)
