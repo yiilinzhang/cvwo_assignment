@@ -1,10 +1,13 @@
 import { Post } from "../components/post";
 import { useQuery } from "@tanstack/react-query";
 
-export function PostList() {
+export default function Posts({params}) {
   const {isLoading, data} = useQuery({
-              queryKey: [`posts`], 
-              queryFn: getPosts
+              queryKey: [`posts`, params.id], 
+              queryFn: async () => {
+    const response = await fetch(`http://localhost:8000/posts/${params.id}`) 
+    return await response.json()
+}
           })
   return (<div className="flex flex-col items-center gap-8 py-6 px-20">
     <text className="text-4xl font-bold w-full ">All topics</text>
@@ -13,7 +16,3 @@ export function PostList() {
 );
 }
 
-const getPosts = async () => {
-    const response = await fetch("http://localhost:8000/posts") 
-    return await response.json()
-}

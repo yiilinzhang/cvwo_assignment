@@ -1,5 +1,5 @@
 import { List } from "@phosphor-icons/react";
-
+import { Link } from "react-router";
 import { useState, useEffect } from "react";
 
 
@@ -14,9 +14,10 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
             <div className="bg-white top-20 h-screen fixed w-80 left-0 shadow flex flex-col">
             {topicsList.map((item) => {
                 return (
-                    <button className="hover:cursor-pointer hover:bg-[#6AD5FF] rounded-xl p-3 ">
+                    <Link to={`/posts/${item.topic_id}` }>
+                    <button className="hover:cursor-pointer hover:bg-[#6AD5FF] rounded-xl p-3 w-full" onClick={expandSidebar}>
                         <text>{item.title}</text>
-                    </button>
+                    </button></Link>
             )})}
             </div>
         </div>
