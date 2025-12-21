@@ -8,16 +8,17 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-//TODO check if i need defer rows.Close()
-func ListPost(conn *pgxpool.Pool, topicId string) ([]models.Post, error) {
+func ListPostByTopic(conn *pgxpool.Pool, topicId string) ([]models.Post, error) {
 	topicInt, err := strconv.Atoi(topicId)
     if err != nil {
         return nil, err
     }
 	rows, err := conn.Query(context.Background(),
-        `SELECT post_id, title, content, user_id, topic_id 
+        `SELECT post.post_id, post.title, post.content, post.user_id, topic.title
 		FROM post 
-		WHERE topic_id = $1`,
+		WHERE topic_id = $1
+		INNER JOIN topic
+		ON post.topic_id = topic.topic_id`,
 		topicInt)
 	if err != nil {
     return nil, err
@@ -27,6 +28,26 @@ func ListPost(conn *pgxpool.Pool, topicId string) ([]models.Post, error) {
 	for rows.Next() {
 		var p models.Post
 		err :=rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicId)
+		if err != nil {
+    	return nil, err
+		}
+		post = append(post, p)
+	}
+	return post, nil
+}
+
+func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
+	rows, err := conn.Query(context.Background(),
+        `SELECT post_id, title, content, user_id
+		FROM post`)
+	if err != nil {
+    return nil, err
+	}
+	defer rows.Close()
+	post := []models.Post{}
+	for rows.Next() {
+		var p models.Post
+		err :=rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId)
 		if err != nil {
     	return nil, err
 		}

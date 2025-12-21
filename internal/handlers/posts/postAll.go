@@ -5,26 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
 )
 
-const (
-	ListPosts = "posts.HandleList"
 
-	SuccessfulListPostsMessage = "Successfully listed posts"
-	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
-	ErrRetrievePosts          = "Failed to retrieve posts in %s"
-	ErrEncodeView              = "Failed to retrieve posts in %s"
-)
+func HandleListAllPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 
-func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-
-	topicId:= chi.URLParam(r, "topicId")
-	postList, err := dataaccess.ListPost(conn, topicId)
+	postList, err := dataaccess.ListAllPost(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}

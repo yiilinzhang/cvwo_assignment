@@ -2,10 +2,12 @@ import { Post } from "../components/post";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Posts({params}) {
+  const topicId = params?.id
   const {isLoading, data} = useQuery({
-              queryKey: [`posts`, params.id], 
+              queryKey: [`posts`, params.id ?? "all"], 
               queryFn: async () => {
-    const response = await fetch(`http://localhost:8000/posts/${params.id}`) 
+    const url = topicId ? `http://localhost:8000/posts/${params.id}` : "http://localhost:8000/posts"
+    const response = await fetch(url) 
     return await response.json()
 }
           })
