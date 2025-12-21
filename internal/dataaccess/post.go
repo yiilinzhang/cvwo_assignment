@@ -10,26 +10,26 @@ import (
 
 func ListPostByTopic(conn *pgxpool.Pool, topicId string) ([]models.Post, error) {
 	topicInt, err := strconv.Atoi(topicId)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 	rows, err := conn.Query(context.Background(),
-        `SELECT post.post_id, post.title, post.content, post.user_id, topic.title
+		`SELECT post.post_id, post.title, post.content, post.user_id, topic.title
 		FROM post 
-		WHERE topic_id = $1
 		INNER JOIN topic
-		ON post.topic_id = topic.topic_id`,
+		ON post.topic_id = topic.topic_id
+		WHERE post.topic_id = $1`,
 		topicInt)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 	defer rows.Close()
 	post := []models.Post{}
 	for rows.Next() {
 		var p models.Post
-		err :=rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicId)
+		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicId)
 		if err != nil {
-    	return nil, err
+			return nil, err
 		}
 		post = append(post, p)
 	}
@@ -38,18 +38,18 @@ func ListPostByTopic(conn *pgxpool.Pool, topicId string) ([]models.Post, error) 
 
 func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	rows, err := conn.Query(context.Background(),
-        `SELECT post_id, title, content, user_id
+		`SELECT post_id, title, content, user_id
 		FROM post`)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 	defer rows.Close()
 	post := []models.Post{}
 	for rows.Next() {
 		var p models.Post
-		err :=rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId)
+		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId)
 		if err != nil {
-    	return nil, err
+			return nil, err
 		}
 		post = append(post, p)
 	}

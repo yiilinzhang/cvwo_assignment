@@ -9,18 +9,18 @@ import (
 
 func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	rows, err := conn.Query(context.Background(),
-        "SELECT topic_id, title FROM topic",
-    )
+		"SELECT topic_id, title FROM topic",
+	)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 	defer rows.Close()
 	topic := []models.Topic{}
 	for rows.Next() {
 		var t models.Topic
-		err :=rows.Scan(&t.ID, &t.Title)
+		err := rows.Scan(&t.ID, &t.Title)
 		if err != nil {
-    	return nil, err
+			return nil, err
 		}
 		topic = append(topic, t)
 	}

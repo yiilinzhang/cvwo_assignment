@@ -11,7 +11,6 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
 )
 
-
 func HandleListAllPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 
 	postList, err := dataaccess.ListAllPost(conn)

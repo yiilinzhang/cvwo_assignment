@@ -17,13 +17,13 @@ const (
 
 	SuccessfulListPostsMessage = "Successfully listed posts"
 	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
-	ErrRetrievePosts          = "Failed to retrieve posts in %s"
+	ErrRetrievePosts           = "Failed to retrieve posts in %s"
 	ErrEncodeView              = "Failed to retrieve posts in %s"
 )
 
 func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 
-	topicId:= chi.URLParam(r, "topicId")
+	topicId := chi.URLParam(r, "topicId")
 	postList, err := dataaccess.ListPostByTopic(conn, topicId)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))

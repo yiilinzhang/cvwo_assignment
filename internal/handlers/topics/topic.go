@@ -15,9 +15,9 @@ const (
 	ListTopics = "topics.HandleList"
 
 	SuccessfulListTopicsMessage = "Successfully listed topics"
-	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
-	ErrRetrieveTopics          = "Failed to retrieve topics in %s"
-	ErrEncodeView              = "Failed to retrieve topics in %s"
+	ErrRetrieveDatabase         = "Failed to retrieve database in %s"
+	ErrRetrieveTopics           = "Failed to retrieve topics in %s"
+	ErrEncodeView               = "Failed to retrieve topics in %s"
 )
 
 func HandleList(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {

@@ -4,9 +4,8 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
 } from "react-router";
-
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 

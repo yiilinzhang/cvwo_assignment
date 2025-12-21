@@ -19,21 +19,21 @@ func GetRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 		r.Get("/users", Routing(conn, users.HandleList))
 		r.Get("/topics", Routing(conn, topics.HandleList))
 
-		//TODO combine with queryparams 
+		//TODO combine with queryparams
 		r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
 		r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
 	}
 }
 
-//TODO double check this code again
+// TODO double check this code again
 func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
-		return func(w http.ResponseWriter, req *http.Request) {
-			response, err := HandleList(conn, w, req)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return 
-			}
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(response)
+	return func(w http.ResponseWriter, req *http.Request) {
+		response, err := HandleList(conn, w, req)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
 }

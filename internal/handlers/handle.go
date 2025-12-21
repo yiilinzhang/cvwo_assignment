@@ -1,4 +1,4 @@
-//modularise handlers code
+// modularise handlers code
 package handlers
 
 import (
@@ -39,4 +39,3 @@ func HandleList(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*ap
 		Messages: []string{SuccessfulListUsersMessage},
 	}, nil
 }
-
