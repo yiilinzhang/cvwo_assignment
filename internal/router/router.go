@@ -23,5 +23,6 @@ func Setup(conn *pgxpool.Pool) chi.Router {
 
 func setUpRoutes(r chi.Router, conn *pgxpool.Pool) {
 	//TODO use grpoup later when i add login auth
+	//Private toutes
 	r.Group(routes.GetRoutes(conn))
 }

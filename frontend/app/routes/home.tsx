@@ -1,4 +1,5 @@
 import type { Route } from "./+types/home";
+import { LoginPage } from "./login";
 import Posts from "./posts.$id";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,5 +10,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <Posts params={null} />;
+  return <LoginPage/>
+  //<Posts params={null} />;
 }
