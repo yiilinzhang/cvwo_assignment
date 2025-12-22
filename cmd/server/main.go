@@ -16,18 +16,14 @@ import (
 
 func main() {
 	//TODO stop using temp database url implmeent .env
-	//TODO change error cahcting to the fmt.fatalln, double check this exits
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
-		fmt.Fprintf(os.Stderr, "DATABASE_URL is empty")
-		os.Exit(1)
+		log.Fatalln("DATABASE_URL is empty")
 	}
-	fmt.Println("Database URL:", databaseURL)
 
 	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Pool connection failed: %v\n", err)
-		os.Exit(1)
+		log.Fatalln("Pool connection failed: %v\n", err)
 	}
 	r := router.Setup(pool)
 	defer pool.Close()

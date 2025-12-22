@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-
+import { useNavigate } from "react-router";
+//TODO add typing later
 export default function addPosts() {
   const { isLoading, data } = useQuery({
     queryKey: [`topiclist`],
@@ -8,31 +9,40 @@ export default function addPosts() {
       return await response.json();
     },
   });
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const form = e.target;
     const formData = new FormData(form);
-    const JSForm = Object.fromEntries(formData.entries());
-    console.log(JSForm)
+    const body = {
+      title: formData.get("title"),
+      content : formData.get("content"),
+      topic_id: Number(formData.get("topic_id"))
+    }
+    console.log(body)
     try {
       const response = await fetch("http://localhost:8000/posts", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(JSForm),
+        body: JSON.stringify(body),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      console.log(response)
       const result = await response.json();
-      console.log(result)
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to create post.");
+      return
     }
+    alert("Successfully created post.");
+    navigate("/")
+
   };
 
   return (
@@ -44,9 +54,9 @@ export default function addPosts() {
 
         <div className="flex flex-col justify-start gap-2">
           <text className="font-medium text-2xl">Topic</text>
-          <select className="w-40 h-10 border-2 rounded-2xl p-2" name="topic">
-            {data?.payload.data.map((title) => (
-              <option className="text-xl">{title.title}</option>
+          <select className="w-40 h-10 border-2 rounded-2xl p-2" name="topic_id">
+            {data?.payload.data.map((title: any) => (
+              <option className="text-xl" key={title.topic_id} value={title.topic_id}>{title.title}</option>
             ))}
           </select>
 

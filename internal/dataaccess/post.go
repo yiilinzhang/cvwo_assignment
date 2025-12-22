@@ -38,7 +38,7 @@ func ListPostByTopic(conn *pgxpool.Pool, topicId string) ([]models.Post, error) 
 
 func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	rows, err := conn.Query(context.Background(),
-		`SELECT post_id, title, content, user_id
+		`SELECT post_id, title, content, user_id, topic_id
 		FROM post`)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	post := []models.Post{}
 	for rows.Next() {
 		var p models.Post
-		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId)
+		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicId)
 		if err != nil {
 			return nil, err
 		}

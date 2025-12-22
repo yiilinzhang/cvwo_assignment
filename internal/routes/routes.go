@@ -22,6 +22,8 @@ func GetRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 		//TODO combine with queryparams
 		r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
 		r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
+
+		r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
 	}
 }
 
