@@ -3,7 +3,6 @@ package auth
 import (
 	"os"
 	"log"
-	"fmt"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/joho/godotenv"

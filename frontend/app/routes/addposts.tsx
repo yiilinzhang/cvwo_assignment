@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { Button, Typography, TextField, MenuItem } from "@mui/material";
 //TODO add typing later
 export default function addPosts() {
   const { isLoading, data } = useQuery({
@@ -9,7 +10,7 @@ export default function addPosts() {
       return await response.json();
     },
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,64 +19,78 @@ export default function addPosts() {
     const formData = new FormData(form);
     const body = {
       title: formData.get("title"),
-      content : formData.get("content"),
-      topic_id: Number(formData.get("topic_id"))
-    }
-    console.log(body)
+      content: formData.get("content"),
+      topic_id: Number(formData.get("topic_id")),
+    };
+    console.log(body);
     try {
       const response = await fetch("http://localhost:8000/posts", {
         method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log(response)
+      console.log(response);
       const result = await response.json();
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to create post.");
-      return
+      return;
     }
     alert("Successfully created post.");
-    navigate("/")
-
+    navigate("/");
   };
 
   return (
     <form method="post" onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-1 items-center">
-        <text className="font-medium text-3xl p-6">
-          Create a new post today!
-        </text>
-
+      <div className="flex flex-col gap-1 items-center py-2">
+          <Typography color="black" fontWeight={500} fontSize="2rem">Create a new post today!</Typography>
+          
         <div className="flex flex-col justify-start gap-2">
-          <text className="font-medium text-2xl">Topic</text>
-          <select className="w-40 h-10 border-2 rounded-2xl p-2" name="topic_id">
-            {data?.payload.data.map((title: any) => (
-              <option className="text-xl" key={title.topic_id} value={title.topic_id}>{title.title}</option>
+          <Typography fontWeight={500} fontSize="1.5rem">
+            Topic
+          </Typography>
+
+          <TextField select name="topic_id" size="small" sx={{ width: 160 }}>
+            {data?.payload.data.map((title) => (
+              <MenuItem key={title.topic_id} value={title.topic_id}>
+                {title.title}
+              </MenuItem>
             ))}
-          </select>
+          </TextField>
 
           <text className="font-medium text-2xl ">Title</text>
-          <textarea
-            className="border-2 rounded-2xl p-2 w-96 h-20"
+          <TextField
             name="title"
+            size="small"
+            variant="outlined"
+            required
+            sx={{ width: 300 }}
           />
 
           <text className="font-medium text-2xl">Content</text>
-          <textarea className="border-2 rounded-2xl p-2 h-44" name="content" />
+          <TextField
+            name="title"
+            size="medium"
+            variant="outlined"
+            required
+            multiline
+            rows={4}
+            sx={{ width: 300 }}
+          ></TextField>
         </div>
 
-        <button
-          className="bg-[#9BE3FF] w-34 p-2 m-4 rounded-2xl hover:cursor-pointer"
+        <Button
           type="submit"
+          variant="contained"
+          sx={{ background: "#9BE3FF", mt: 2 }}
         >
-          <text className="font-medium text-2xl">Post now!</text>
-        </button>
+          <Typography sx={{ fontSize: "20px" }}>Post now!</Typography>
+        </Button>
       </div>
     </form>
   );

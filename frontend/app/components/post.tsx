@@ -3,6 +3,7 @@ import {
   PencilSimpleLineIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
+import { IconButton } from "@mui/material";
 
 export function Post({ title, content, owner }) {
   return (
@@ -10,19 +11,17 @@ export function Post({ title, content, owner }) {
       <text className="text-2xl font-semibold">{title}</text>
       <text className="text-xl ">{content}</text>
       <div className="flex justify-end">
-        <button className="hover:cursor-pointer hover:bg-stone-300 p-1 rounded-2xl">
-          <ChatsIcon size={30} />
-        </button>
-        <button
-          className={`hover:cursor-pointer hover:bg-stone-300 p-1 rounded-2xl ${owner ? `visible` : `hidden`}`}
-        >
-          <PencilSimpleLineIcon size={30} />
-        </button>
-        <button
-          className={`hover:cursor-pointer hover:bg-stone-300 p-1 rounded-2xl ${owner ? `visible` : `hidden`}`}
-        >
-          <TrashIcon size={30} />
-        </button>
+        <IconButton aria-label="comment">
+          <ChatsIcon size={30} color="black" />
+        </IconButton>
+
+        <IconButton aria-label="edit_post">
+          <PencilSimpleLineIcon size={30} color="black" />
+        </IconButton>
+
+        <IconButton aria-label="delete_post">
+          <TrashIcon size={30} color="black" />
+        </IconButton>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+import { Button, Typography, TextField } from "@mui/material";
+
 export function LoginPage() {
   return (
     <div className="w-screen h-screen bg-[#F5F5F5] flex justify-center pt-40">
@@ -5,10 +7,14 @@ export function LoginPage() {
         <text className="font-bold text-2xl">Sign In/ Sign Up</text>
         <div className="flex flex-col">
         <text className="text-l">username</text>
-        <textarea className="border rounded-2xl py-1" rows={1} cols={30}/></div>
-        <button className="bg-[#9BE3FF] p-2 mt-2">
+        <TextField required size="small" />
+        {/* TODO remove and adjust styling later */}
+        {/* <textarea className="border rounded-2xl py-1" rows={1} cols={30}/> */}</div>
+        <Button variant="contained" sx={{background:"#9BE3FF" }}><Typography>Enter!</Typography></Button>
+        {/* TODO rmv later */}
+        {/* <button className="bg-[#9BE3FF] p-2 mt-2">
           <text className="font-bold text-xl">Enter!</text>
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -7,6 +7,12 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+//MUI imports
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Header } from "./components/header";
@@ -51,7 +57,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return <Outlet/>;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
