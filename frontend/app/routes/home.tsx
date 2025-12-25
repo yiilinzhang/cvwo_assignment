@@ -10,6 +10,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return //<LoginPage/>
-  <Posts params={null} />;
+  return <LoginPage/>
+  // <Posts params={null} />;
 }

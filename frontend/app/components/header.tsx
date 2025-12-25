@@ -11,7 +11,7 @@ export function Header() {
   });
   if (isLoading) return <div>Loading...</div>;
   return (
-    <div className="h-20">
+    <div className="h-20 sticky top-0">
       <div className="h-20 bg-[#9BE3FF] ps-4 flex items-center gap-4">
         <SideBar topicsList={data?.payload.data} />
         <Link to="/">

@@ -46,7 +46,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          <Header />
+          <Header/>
           {children}
         </QueryClientProvider>
         <ScrollRestoration />
