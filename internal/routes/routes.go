@@ -14,20 +14,29 @@ import (
 
 type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
 
-func GetRoutes(conn *pgxpool.Pool) func(r chi.Router) {
+func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 	return func(r chi.Router) {
 		//Private routes
 		r.Group(func(r chi.Router){
-		r.Get("/users", Routing(conn, users.HandleList))
-		r.Get("/topics", Routing(conn, topics.HandleList))
-
 		//TODO combine with queryparams
-		r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
-		r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
-
+		r.Get("/users", Routing(conn, users.HandleList))
 		r.Post("/posts", Routing(conn, posts.HandleInsertPosts))})
 	}
 }
+
+func PublicRoutes(conn *pgxpool.Pool) func(r chi.Router) {
+	return func(r chi.Router) {
+		//Public routes routes
+		r.Group(func(r chi.Router){
+			//
+			r.Post("/users", Routing(conn, users.HandleAddUsers))
+			r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
+			r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
+			r.Get("/topics", Routing(conn, topics.HandleList))})
+	}
+}
+
+
 
 // TODO double check this code again
 func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {

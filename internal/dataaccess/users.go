@@ -9,7 +9,7 @@ import (
 
 func ListUser(conn *pgxpool.Pool) ([]models.User, error) {
 	rows, err := conn.Query(context.Background(),
-		"SELECT userid, name FROM users",
+		"SELECT userid, name, password_hash FROM users",
 	)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func ListUser(conn *pgxpool.Pool) ([]models.User, error) {
 	users := []models.User{}
 	for rows.Next() {
 		var u models.User
-		err := rows.Scan(&u.ID, &u.Name)
+		err := rows.Scan(&u.ID, &u.Name, &u.PasswordHash)
 		if err != nil {
 			return nil, err
 		}

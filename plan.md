@@ -4,7 +4,7 @@
 
 4. Login and auth make a new endpoint public
 
-
+restore not null on password hash restriction
 4. Fix codebase err and to do 
 4. Reply comment function?
 5. Login and auth?

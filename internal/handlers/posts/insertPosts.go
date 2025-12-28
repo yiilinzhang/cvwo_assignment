@@ -29,7 +29,7 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
-
+	//TODO check if more efficient to not unmardshell
 	data, err := json.Marshal(newPost)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListPosts))

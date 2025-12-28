@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -37,4 +39,24 @@ func HandleList(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*ap
 		},
 		Messages: []string{SuccessfulListUsersMessage},
 	}, nil
+}
+
+func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	//Extract JSON from HTTP req
+	var userJSON api.CreateUserInput
+	json.NewDecoder(r.Body).Decode(&userJSON)
+
+	//TODO rmv prnt statm
+	//TODO check if i should shift API here
+	//TODO add empty user pw validation
+	log.Println(userJSON)
+	hashBytes, err := bcrypt.GenerateFromPassword([]byte(userJSON.Password), bcrypt.DefaultCost)
+	userJSON.Password=""
+	s := string(hashBytes)
+	err = dataaccess.InsertUser(conn, userJSON.Username, s)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+	}
+	return nil, err
+
 }
