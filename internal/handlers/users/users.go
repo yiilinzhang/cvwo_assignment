@@ -3,12 +3,13 @@ package users
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
+	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
 	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,6 +22,8 @@ const (
 	ErrRetrieveUsers           = "Failed to retrieve users in %s"
 	ErrEncodeView              = "Failed to retrieve users in %s"
 )
+
+
 
 func HandleList(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userList, err := dataaccess.ListUser(conn)
@@ -67,15 +70,33 @@ func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 	//JSON->GO conversion of http body
 	var loginCred api.CreateUserInput
 	json.NewDecoder(r.Body).Decode(&loginCred)
-	savedPass, err := dataaccess.FetchUser(conn, loginCred.Username)
+	userID, savedPass, err := dataaccess.FetchUser(conn, loginCred.Username)
 	//TODO change this err message
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
 	}
+	//Compare passwords returns nil if matches, err otherwise
 	err = bcrypt.CompareHashAndPassword([]byte(savedPass), []byte(loginCred.Password))
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+		return nil, errors.New("Invalid Credentials")
 	}
-	return nil, nil
-	//Compare passwords
+	
+
+	//create a JWT if auth suceeds
+	_, jwtString, _ := auth.TokenAuth.Encode(map[string]interface{}{
+    "user_id": userID,})
+
+
+	data, err := json.Marshal(jwtString)
+	if err != nil {
+		return nil, errors.New("Failed to convert JWT to JSON")
+	}
+	return &api.Response{
+		Payload: api.Payload{
+			Data: data,
+		},
+		Messages: []string{"login successful"},
+		ErrorCode: 0,
+	}, nil
+	
 }
