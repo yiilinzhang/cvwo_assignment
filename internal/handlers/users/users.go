@@ -60,3 +60,22 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 	return nil, err
 
 }
+
+//return nil if password matches
+func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
+	//TODO might need to rename this api model
+	//JSON->GO conversion of http body
+	var loginCred api.CreateUserInput
+	json.NewDecoder(r.Body).Decode(&loginCred)
+	savedPass, err := dataaccess.FetchUser(conn, loginCred.Username)
+	//TODO change this err message
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(savedPass), []byte(loginCred.Password))
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+	}
+	return nil, nil
+	//Compare passwords
+}
