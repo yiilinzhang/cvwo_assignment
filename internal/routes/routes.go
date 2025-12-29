@@ -22,9 +22,10 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 		r.Group(func(r chi.Router){
 			r.Use(jwtauth.Verifier(auth.TokenAuth))
 			r.Use(jwtauth.Authenticator(auth.TokenAuth))
+			r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
 		//TODO combine with queryparams
 		r.Get("/users", Routing(conn, users.HandleList))
-		r.Post("/posts", Routing(conn, posts.HandleInsertPosts))})
+		})
 	}
 }
 

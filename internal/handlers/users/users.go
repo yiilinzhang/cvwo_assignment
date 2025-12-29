@@ -91,6 +91,19 @@ func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 	if err != nil {
 		return nil, errors.New("Failed to convert JWT to JSON")
 	}
+	cookie := http.Cookie{
+		Name: "auth_token",
+		Value: jwtString,
+		Path: "/",
+		MaxAge: 604800,
+		HttpOnly: true,
+		//TODO Need to change this in prod to true
+		Secure: false,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	http.SetCookie(w, &cookie)
+
 	return &api.Response{
 		Payload: api.Payload{
 			Data: data,

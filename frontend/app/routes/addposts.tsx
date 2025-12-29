@@ -27,6 +27,7 @@ export default function addPosts() {
     try {
       const response = await fetch("http://localhost:8000/posts", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -75,14 +76,14 @@ export default function addPosts() {
 
           <text className="font-medium text-2xl">Content</text>
           <TextField
-            name="title"
+            name="content"
             size="medium"
             variant="outlined"
             required
             multiline
             rows={4}
             sx={{ width: 300 }}
-          ></TextField>
+          />
         </div>
 
         <Button

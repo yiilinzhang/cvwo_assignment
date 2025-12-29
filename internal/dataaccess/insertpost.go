@@ -13,6 +13,6 @@ import (
 func InsertPost(conn *pgxpool.Pool, newPostObj api.CreatePostInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`INSERT INTO post (title, content, user_id, topic_id)
-		VALUES ($1, $2, 1, $3)`, newPostObj.Title, newPostObj.Content, newPostObj.TopicId)
+		VALUES ($1, $2, 10, $3)`, newPostObj.Title, newPostObj.Content, newPostObj.TopicId)
 	return nil, err
 }

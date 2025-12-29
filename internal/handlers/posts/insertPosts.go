@@ -23,17 +23,21 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 
 	//TODO remove this log in the future
 	log.Println(postJSON)
+	log.Println("got here 3")
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	newPost, err := dataaccess.InsertPost(conn, postJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
+
+	log.Println("got here 1")
 	//TODO check if more efficient to not unmardshell
 	data, err := json.Marshal(newPost)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListPosts))
 	}
+	log.Println("got here 2")
 
 	return &api.Response{
 		Payload: api.Payload{
