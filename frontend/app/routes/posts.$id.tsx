@@ -17,7 +17,7 @@ export default function Posts({ params }) {
     <div className="flex flex-col items-center gap-8 py-6 px-20">
       <text className="text-4xl font-bold w-full ">All topics</text>
       {data?.payload.data.map((post) => (
-        <Post title={post.title} content={post.content} owner={true} />
+        <Post id={post.post_id} title={post.title} content={post.content} owner={true} />
       ))}
     </div>
   );

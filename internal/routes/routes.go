@@ -10,6 +10,7 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/posts"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/topics"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/users"
+	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/comments"
 	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
 	"github.com/go-chi/jwtauth/v5"
 )
@@ -37,6 +38,7 @@ func PublicRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			r.Post("/login", Routing(conn, users.HandleLoginAuth))
 			r.Post("/users", Routing(conn, users.HandleAddUsers))
 			r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
+			r.Get("/comments/{postId}", Routing(conn, comments.HandleListByPosts))
 			r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
 			r.Get("/topics", Routing(conn, topics.HandleList))})
 	}

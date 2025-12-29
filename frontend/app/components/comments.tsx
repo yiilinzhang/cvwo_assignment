@@ -4,15 +4,14 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { IconButton } from "@mui/material";
-import { Link } from "react-router";
 
-export function Post({ id, title, content, owner }) {
+export function Comments({ username, content, owner }) {
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col p-4 gap-2">
-      <text className="text-2xl font-semibold">{title}</text>
+      <text className="text-2xl font-semibold">{username}</text>
       <text className="text-xl ">{content}</text>
       <div className="flex justify-end">
-        <IconButton aria-label="comment" component={Link} to={`/postcomments/${id}`}>
+        <IconButton aria-label="comment">
           <ChatsIcon size={30} color="black" />
         </IconButton>
 

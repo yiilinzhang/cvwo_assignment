@@ -2,7 +2,7 @@ import { SideBar } from "./sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { PlusCircleIcon } from "@phosphor-icons/react";
 import { Link } from "react-router";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 
 export function Header() {
   const { isLoading, data } = useQuery({
@@ -25,6 +25,15 @@ export function Header() {
             sx={{ borderRadius: 999 }}
           >
             <PlusCircleIcon size="50" color="white" weight="bold" />
+          </Button>
+          {/* TODO should show user/login when user is signedin or not */}
+          <Button
+            component={Link}
+            to="/sign-in"
+            variant="text"
+            sx={{ borderRadius: 999 }}
+          >
+            <Typography fontWeight={500} color="white" fontSize={28} >Login</Typography>
           </Button>
         </div>
       </div>
