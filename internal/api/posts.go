@@ -6,3 +6,8 @@ type CreatePostInput struct {
 	Content string `json:"content"`;
 	UserId int `json:"user_id"`;	
 }
+
+type DeletePostInput struct {
+	PostId int `json:"post_id"`;
+	UserId int `json:"user_id"`;	
+}

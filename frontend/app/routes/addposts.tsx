@@ -25,6 +25,7 @@ export default function addPosts() {
     };
     console.log(body);
     try {
+      //TODO change to axios
       const response = await fetch("http://localhost:8000/posts", {
         method: "POST",
         credentials: "include",
@@ -65,7 +66,7 @@ export default function addPosts() {
             ))}
           </TextField>
 
-          <text className="font-medium text-2xl ">Title</text>
+          <Typography className="font-medium text-2xl ">Title</Typography>
           <TextField
             name="title"
             size="small"
@@ -74,7 +75,7 @@ export default function addPosts() {
             sx={{ width: 300 }}
           />
 
-          <text className="font-medium text-2xl">Content</text>
+          <Typography className="font-medium text-2xl">Content</Typography>
           <TextField
             name="content"
             size="medium"

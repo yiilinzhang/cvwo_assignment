@@ -16,6 +16,7 @@ import (
 
 func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	//Extract JSON from HTTP req
+	log.Println("got here 3")
 	var postJSON api.CreatePostInput
 	json.NewDecoder(r.Body).Decode(&postJSON)
 

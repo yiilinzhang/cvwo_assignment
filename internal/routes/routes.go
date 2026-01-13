@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
+	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
+	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/comments"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/posts"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/topics"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/users"
-	"github.com/yiilinzhang/cvwo_assignment/internal/handlers/comments"
-	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
-	"github.com/go-chi/jwtauth/v5"
 )
 
 type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
@@ -20,12 +20,14 @@ type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 	return func(r chi.Router) {
 		//Private routes
-		r.Group(func(r chi.Router){
+		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.TokenAuth))
 			r.Use(jwtauth.Authenticator(auth.TokenAuth))
 			r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
-		//TODO combine with queryparams
-		r.Get("/users", Routing(conn, users.HandleList))
+			r.Delete("/posts/{postId}", Routing(conn, posts.HandleDeletePosts))
+			r.Get("/me", Routing(conn, users.HandleMe))
+			//TODO combine with queryparams
+			r.Get("/users", Routing(conn, users.HandleList))
 		})
 	}
 }
@@ -33,18 +35,17 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 func PublicRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 	return func(r chi.Router) {
 		//Public routes routes
-		r.Group(func(r chi.Router){
+		r.Group(func(r chi.Router) {
 			//
 			r.Post("/login", Routing(conn, users.HandleLoginAuth))
 			r.Post("/users", Routing(conn, users.HandleAddUsers))
 			r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
 			r.Get("/comments/{postId}", Routing(conn, comments.HandleListByPosts))
 			r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
-			r.Get("/topics", Routing(conn, topics.HandleList))})
+			r.Get("/topics", Routing(conn, topics.HandleList))
+		})
 	}
 }
-
-
 
 // TODO double check this code again
 func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
@@ -59,32 +60,31 @@ func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
 	}
 }
 
-	// return func(r chi.Router) {
-	// 	r.Group(func(r chi.Router) {
-	// 	// Seek, verify and validate JWT tokens
-	// 	r.Use(jwtauth.Verifier(auth.TokenAuth))
+// return func(r chi.Router) {
+// 	r.Group(func(r chi.Router) {
+// 	// Seek, verify and validate JWT tokens
+// 	r.Use(jwtauth.Verifier(auth.TokenAuth))
 
-	// 	// Handle valid / invalid tokens. In this example, we use
-	// 	// the provided authenticator middleware, but you can write your
-	// 	// own very easily, look at the Authenticator method in jwtauth.go
-	// 	// and tweak it, its not scary.
-	// 	r.Use(jwtauth.Authenticator(auth.TokenAuth))
+// 	// Handle valid / invalid tokens. In this example, we use
+// 	// the provided authenticator middleware, but you can write your
+// 	// own very easily, look at the Authenticator method in jwtauth.go
+// 	// and tweak it, its not scary.
+// 	r.Use(jwtauth.Authenticator(auth.TokenAuth))
 
-	// 	r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-	// 		_, claims, _ := jwtauth.FromContext(r.Context())
-	// 		w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
-	// 	})
+// 	r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+// 		_, claims, _ := jwtauth.FromContext(r.Context())
+// 		w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
+// 	})
 
-	// 	r.Get("/users", Routing(conn, users.HandleList))
-	// 	r.Get("/topics", Routing(conn, topics.HandleList))
+// 	r.Get("/users", Routing(conn, users.HandleList))
+// 	r.Get("/topics", Routing(conn, topics.HandleList))
 
-	// 	//TODO combine with queryparams
-	// 	r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
-	// 	r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
+// 	//TODO combine with queryparams
+// 	r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
+// 	r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
 
-	// 	r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
+// 	r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
 
-	// })
+// })
 
-	
-	// }
+// }

@@ -6,7 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
 //MUI imports
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
