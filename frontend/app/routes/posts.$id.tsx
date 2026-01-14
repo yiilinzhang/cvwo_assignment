@@ -1,9 +1,11 @@
 import { Post } from "../components/post";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth"
+import axios from "axios";
 
 export default function Posts({ params }) {
     const {user, isLoading : userLoading} = useAuth()
+      const queryClient = useQueryClient();
   const topicId = params?.id;
   const { isLoading: postLoading, data: postData } = useQuery({
     queryKey: [`posts`, params.id ?? "all"],
@@ -15,13 +17,16 @@ export default function Posts({ params }) {
       return await response.json();
     },
   });
-
+    const topics = queryClient.getQueryData(["topics"])?.payload.data;
+  
+    const currTopic = topics.filter(t => t.topic_id === Number(params.id))[0]?.title
+    console.log(currTopic)
   return (
     <div className="flex flex-col items-center gap-8 py-6 px-20">
       {/* TODO change this so it shows the curr topic */}
-      <text className="text-4xl font-bold w-full ">All Topic</text>
+      <text className="text-4xl font-bold w-full ">{currTopic || "All Topics"}</text>
       {postData?.payload.data.map((post) => (
-        <Post key={post.post_id} id={post.post_id} title={post.title} content={post.content} isOwner={Number(post.user_id) === user?.payload.data} />
+        <Post key={post.post_id} id={post.post_id} title={post.title} content={post.content} isOwner={Number(post.user_id) === user?.payload.data} showChat={true}/>
       ))}
     </div>
   );

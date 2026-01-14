@@ -14,4 +14,5 @@ type QueryCommentResponse struct {
 	ID      int    `json:"comment_id"`
 	Content string `json:"content"`
 	UserName string `json:"name"`
+	UserId  string `json:"user_id"`
 }
