@@ -25,7 +25,7 @@ export default function postComments({ params }) {
   });
   const post = queryClient.getQueryData(["posts", "all"])?.payload.data;
   console.log(post);
-  const currPost = post.filter((p) => p.post_id === Number(postId))[0];
+  const currPost = post.find((p) => p.post_id === Number(postId));
   console.log(currPost);
   const handleSubmit =  (e) => {
     e.preventDefault();
