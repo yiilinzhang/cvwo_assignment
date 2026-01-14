@@ -71,7 +71,8 @@ export function Header() {
             <MenuItem component={Link} to="addposts">
               Add Posts
             </MenuItem>
-            <MenuItem>Add Topics</MenuItem>
+            <MenuItem component={Link} to="addtopics"
+            >Add Topics</MenuItem>
           </Menu>
 
           {/* TODO add drop down to log out */}

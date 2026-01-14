@@ -1,18 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField, MenuItem, Alert } from "@mui/material";
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
-export default function addPosts() {
-  const { isLoading, data } = useQuery({
-    queryKey: [`topiclist`],
-    queryFn: async () => {
-      const response = await fetch("http://localhost:8000/topics");
-      return await response.json();
-    },
-  });
+export default function addTopics() {
   const navigate = useNavigate();
-
+  const queryClient = useQueryClient();
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -20,13 +13,11 @@ export default function addPosts() {
     const formData = new FormData(form);
     const body = {
       title: formData.get("title"),
-      content: formData.get("content"),
-      topic_id: Number(formData.get("topic_id")),
     };
     console.log(body);
     try {
       //TODO change to axios
-      const response = await fetch("http://localhost:8000/posts", {
+      const response = await fetch("http://localhost:8000/topics", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -41,48 +32,30 @@ export default function addPosts() {
       const result = await response.json();
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to create post.");
+      alert("Failed to create topic.");
       return;
     }
-    alert("Successfully created post.");
+    queryClient.invalidateQueries({ queryKey: ["topics"] });
+    alert("Successfully created topic.");
     navigate("/");
   };
 
   return (
     <form method="post" onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-1 items-center py-12">
-          <Typography color="black" fontWeight={500} fontSize="2rem">Create a new post today!</Typography>
-          
+      <div className="flex flex-col gap-12 items-center py-12 ">
+        <Typography color="black" fontWeight={500} fontSize="2rem">
+          Create a new Topic today!
+        </Typography>
+
         <div className="flex flex-col justify-start gap-2">
           <Typography fontWeight={500} fontSize="1.5rem">
-            Topic
+            Title
           </Typography>
-
-          <TextField select name="topic_id" size="small" sx={{ width: 160 }}>
-            {data?.payload.data.map((title) => (
-              <MenuItem key={title.topic_id} value={title.topic_id}>
-                {title.title}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <Typography fontWeight={500} fontSize="1.5rem">Title</Typography>
           <TextField
             name="title"
             size="small"
             variant="outlined"
             required
-            sx={{ width: 300 }}
-          />
-
-          <Typography fontWeight={500} fontSize="1.5rem">Content</Typography>
-          <TextField
-            name="content"
-            size="medium"
-            variant="outlined"
-            required
-            multiline
-            rows={4}
             sx={{ width: 300 }}
           />
         </div>
@@ -92,7 +65,7 @@ export default function addPosts() {
           variant="contained"
           sx={{ background: "#9BE3FF", mt: 2 }}
         >
-          <Typography sx={{ fontSize: "20px" }}>Post now!</Typography>
+          <Typography sx={{ fontSize: "20px" }}>Add now!</Typography>
         </Button>
       </div>
     </form>

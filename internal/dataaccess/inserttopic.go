@@ -10,9 +10,9 @@ import (
 
 //TODO after auth pass in user id too
 //TODO change the []model.post return type to just return error or smth more accurate
-func InsertPost(conn *pgxpool.Pool, newPostObj api.CreatePostInput) ([]models.Post, error) {
+func InsertTopic(conn *pgxpool.Pool, newTopicObj api.CreateTopicInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
-		`INSERT INTO post (title, content, user_id, topic_id)
-		VALUES ($1, $2, $3, $4)`, newPostObj.Title, newPostObj.Content, newPostObj.UserId, newPostObj.TopicId)
+		`INSERT INTO topic (title, user_id)
+		VALUES ($1, $2)`, newTopicObj.Title, newTopicObj.UserId)
 	return nil, err
 }
