@@ -28,6 +28,7 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			r.Get("/me", Routing(conn, users.HandleMe))
 			//TODO combine with queryparams
 			r.Get("/users", Routing(conn, users.HandleList))
+			r.Post("/logout", Routing(conn, users.HandleLogout))
 		})
 	}
 }

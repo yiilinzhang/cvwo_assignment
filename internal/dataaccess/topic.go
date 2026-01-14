@@ -9,7 +9,7 @@ import (
 
 func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	rows, err := conn.Query(context.Background(),
-		"SELECT topic_id, title FROM topic",
+		"SELECT user_id, topic_id, title FROM topic",
 	)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	topic := []models.Topic{}
 	for rows.Next() {
 		var t models.Topic
-		err := rows.Scan(&t.ID, &t.Title)
+		err := rows.Scan(&t.UserId, &t.ID, &t.Title)
 		if err != nil {
 			return nil, err
 		}
