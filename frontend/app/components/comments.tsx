@@ -8,19 +8,18 @@ import { IconButton } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-export function Comments({ username, content, owner , own}) {
+export function Comments({ username, content, isOwner, id }) {
   const queryClient = useQueryClient();
   const deleteComment = useMutation({
     mutationFn: async () => {
-      await axios.delete(`http://localhost:8000/comment/${id}`,
+      await axios.delete(`http://localhost:8000/comments/${id}`,
         {withCredentials: true}
       );
     },
     onSuccess: () =>{ 
-       queryClient.invalidateQueries({ queryKey: ['posts'] });
+       queryClient.invalidateQueries({ queryKey: ['comments'] });
        alert("Post sucessfully deleted")}
   })
-  console.log(own)
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col p-4 gap-2">
       <text className="text-2xl font-semibold">{username}</text>
@@ -30,7 +29,7 @@ export function Comments({ username, content, owner , own}) {
           <ArrowBendUpLeftIcon size={30} color="black" />
         </IconButton>
         
-{owner ? 
+{isOwner ? 
     <div><IconButton aria-label="edit_comment">
       <PencilSimpleLineIcon size={30} color="black" />
     </IconButton>

@@ -131,8 +131,8 @@ export default function postComments({ params }) {
         <Comments
           username={comment.name}
           content={comment.content}
-          owner={Number(comment.user_id) === user?.payload.data}
-          own = {comment.user_id}
+          isOwner={Number(comment.user_id) === user?.payload.data}
+          id={comment.comment_id}
         />
         
       ))}

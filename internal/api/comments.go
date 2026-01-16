@@ -5,3 +5,8 @@ type CreateCommentInput struct {
 	UserId  int `json:"user_id"`
 	PostId string `json:"post_id" `
 }
+
+type DeleteCommentInput struct {
+	CommentId int `json:"comment_id"`;
+	UserId int `json:"user_id"`;	
+}
