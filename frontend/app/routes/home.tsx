@@ -3,8 +3,8 @@ import Posts from "./posts.$id";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "CVWO assignment" },
+    { name: "description", content: "A CVWO chat forum!" },
   ];
 }
 

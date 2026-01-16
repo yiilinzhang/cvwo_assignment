@@ -1,7 +1,8 @@
 import {
   ListIcon,
   PencilSimpleLineIcon,
-  TrashIcon,
+  TrashIcon, HouseIcon,
+  ArrowCircleUpRightIcon
 } from "@phosphor-icons/react";
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
@@ -31,10 +32,24 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
     <main>
       <div className={`${expanded ? `visible` : `invisible`}`}>
         <div className="bg-gray-600 opacity-20 flex h-screen w-screen fixed top-20 left-0"></div>
-        <div className="bg-white top-20 h-screen fixed w-80 left-0 shadow flex flex-col">
+      
+        <div className="bg-white top-20 gap-2 h-screen fixed w-80 left-0 px-3 shadow flex flex-col">
+          
+          <Button 
+          component={Link}
+            to={`/`}
+            onClick={expandSidebar}
+          startIcon={<HouseIcon/>} sx={{color: "black"}}>Home</Button>
+          <Button startIcon={<ArrowCircleUpRightIcon/>} sx={{color: "black"}}>Popular</Button>
+
+
+
+
+        <hr/>
+          <Typography fontSize={25}>Others</Typography>
           {topicsList.map((item) => {
             return (
-              <div className="flex flex-row justify-center ">
+              <div className="flex flex-row  ">
                 <Button
                   component={Link}
                   to={`/posts/${item.topic_id}`}

@@ -48,7 +48,10 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
 
         {isOwner && (
           <>
-            <IconButton aria-label="edit_post">
+            <IconButton aria-label="edit_post"
+            component={Link}
+          to={`/editpost/${id}`}
+          >
               <PencilSimpleLineIcon size={30} color="black" />
             </IconButton>
             <IconButton aria-label="delete_post" onClick={() => deletePost.mutate()}>

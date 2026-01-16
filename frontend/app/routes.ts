@@ -8,4 +8,5 @@ export default [
   route("addtopics", "routes/addtopics.tsx"),
   route("sign-in", "routes/login.tsx"),
   route("sign-up", "routes/signup.tsx"),
+  route("editpost/:id", "routes/editpost.tsx"),
 ] satisfies RouteConfig;

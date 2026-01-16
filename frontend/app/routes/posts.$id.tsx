@@ -20,22 +20,22 @@ export default function Posts({ params }) {
     },
   });
   console.log(postData?.payload.data);
-  const topics = queryClient.getQueryData(["topics"])?.payload.data;
+  const topics = queryClient.getQueryData(["topics"])?.payload?.data;
 
-  const currTopic = topics.find((t) => t.topic_id === Number(params.id))
+  const currTopic = topics?.find((t) => t.topic_id === Number(params.id))
     ?.title;
   console.log(currTopic);
   return (
-    <div className="flex flex-col items-center gap-8 py-6 px-20">
+    <div className="flex flex-col items-center gap-8 py-6 px-20 h-screen">
       {/* TODO change this so it shows the curr topic */}
-      <text className="text-4xl font-bold w-full ">
+      <text className="text-3xl font-bold w-full ">
         {currTopic || "All Topics"}
       </text>
 
       {postData?.payload.data.length === 0 ? (
-        <div className="w-full flex items-center justify-center flex-col h-full">
+        <div className="w-full flex items-center justify-center flex-col pt-40 ">
         <EnvelopeOpenIcon size={80}/>
-        <Typography fontSize={30}>Wow such empty!</Typography></div>
+        <Typography fontSize={25}>There is no content for this page.</Typography></div>
       ) : (
         postData?.payload.data.map((post) => (
           <Post

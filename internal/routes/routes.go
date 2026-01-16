@@ -32,6 +32,7 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			r.Post("/comments/{postId}", Routing(conn, comments.HandleInsertComments))
 			r.Post("/topics", Routing(conn, topics.HandleInsertTopics))
 			r.Delete("/topics/{topicId}", Routing(conn, topics.HandleDeleteTopics))
+			r.Patch("/posts/{postId}", Routing(conn, posts.HandleEditPosts))
 		})
 	}
 }
