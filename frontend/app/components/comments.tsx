@@ -5,8 +5,22 @@ import {
   ArrowBendUpLeftIcon
 } from "@phosphor-icons/react";
 import { IconButton } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
-export function Comments({ username, content, owner }) {
+export function Comments({ username, content, owner , own}) {
+  const queryClient = useQueryClient();
+  const deleteComment = useMutation({
+    mutationFn: async () => {
+      await axios.delete(`http://localhost:8000/comment/${id}`,
+        {withCredentials: true}
+      );
+    },
+    onSuccess: () =>{ 
+       queryClient.invalidateQueries({ queryKey: ['posts'] });
+       alert("Post sucessfully deleted")}
+  })
+  console.log(own)
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col p-4 gap-2">
       <text className="text-2xl font-semibold">{username}</text>
@@ -15,14 +29,16 @@ export function Comments({ username, content, owner }) {
         <IconButton aria-label="comment">
           <ArrowBendUpLeftIcon size={30} color="black" />
         </IconButton>
+        
+{owner ? 
+    <div><IconButton aria-label="edit_comment">
+      <PencilSimpleLineIcon size={30} color="black" />
+    </IconButton>
 
-        <IconButton aria-label="edit_post">
-          <PencilSimpleLineIcon size={30} color="black" />
-        </IconButton>
-
-        <IconButton aria-label="delete_post">
-          <TrashIcon size={30} color="black" />
-        </IconButton>
+    <IconButton aria-label="delete_comment"
+    onClick={() => deleteComment.mutate()}>
+      <TrashIcon size={30} color="black" />
+    </IconButton></div> : <></>}
       </div>
     </div>
   );

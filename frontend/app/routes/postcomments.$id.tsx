@@ -3,7 +3,7 @@ import { Post } from "../components/post";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "~/hooks/useAuth";
 import { Button, TextField, Typography } from "@mui/material";
-import { PlusIcon, ArrowLeftIcon} from "@phosphor-icons/react";
+import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -61,11 +61,17 @@ export default function postComments({ params }) {
         queryClient.invalidateQueries({ queryKey: [`comments`, params.id] });
       });
   };
+  console.log(data)
   return (
     <div className="flex flex-col gap-6 py-6 px-20">
-      <Button startIcon={<ArrowLeftIcon/>} size="large" 
-      onClick={() => navigate(-1)}
-      sx={{color: "black", width: 90, borderRadius: "50px"}}>Back</Button>
+      <Button
+        startIcon={<ArrowLeftIcon />}
+        size="large"
+        onClick={() => navigate(-1)}
+        sx={{ color: "black", width: 90, borderRadius: "50px" }}
+      >
+        Back
+      </Button>
       {postLoading ? (
         <div></div>
       ) : (
@@ -126,7 +132,9 @@ export default function postComments({ params }) {
           username={comment.name}
           content={comment.content}
           owner={Number(comment.user_id) === user?.payload.data}
+          own = {comment.user_id}
         />
+        
       ))}
     </div>
   );

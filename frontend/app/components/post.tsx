@@ -33,8 +33,8 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
   })
 
   return (
-    <div className="bg-[#D9D9D9] w-full flex flex-col p-4 gap-2">
-      <text className="text-2xl font-semibold">{title}</text>
+    <div className="bg-[#D9D9D9] w-full flex flex-col py-3 px-4 gap">
+      <text className="text-xl font-semibold">{title}</text>
       <text className="text-xl ">{content}</text>
       <div className="flex justify-end">
        {showChat &&
@@ -43,7 +43,7 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
           component={Link}
           to={`/postcomments/${id}`}
         >
-          <ChatsIcon size={30} color="black" />
+          <ChatsIcon size={27} color="black" />
         </IconButton>}
 
         {isOwner && (
@@ -52,10 +52,10 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
             component={Link}
           to={`/editpost/${id}`}
           >
-              <PencilSimpleLineIcon size={30} color="black" />
+              <PencilSimpleLineIcon size={27} color="black" />
             </IconButton>
             <IconButton aria-label="delete_post" onClick={() => deletePost.mutate()}>
-              <TrashIcon size={30} color="black" />
+              <TrashIcon size={27} color="black" />
             </IconButton>
           </>
         )}

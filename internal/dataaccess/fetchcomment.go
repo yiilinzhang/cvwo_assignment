@@ -21,7 +21,7 @@ func ListCommentByPost(conn *pgxpool.Pool, postId string) ([]models.QueryComment
 
 
 	rows, err := conn.Query(context.Background(),
-		`SELECT comment.comment_id, comment.content, users.name
+		`SELECT comment.comment_id, comment.content, comment.user_id, users.name
 		FROM comment 
 		INNER JOIN users
 		ON comment.user_id = users.userid
@@ -34,7 +34,7 @@ func ListCommentByPost(conn *pgxpool.Pool, postId string) ([]models.QueryComment
 	comment := []models.QueryCommentResponse{}
 	for rows.Next() {
 		var c models.QueryCommentResponse
-		err := rows.Scan(&c.ID, &c.Content, &c.UserName)
+		err := rows.Scan(&c.ID, &c.Content, &c.UserId, &c.UserName)
 		if err != nil {
 			return nil, err
 		}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
@@ -24,7 +23,7 @@ func HandleInsertComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Req
 
 commentJSON.PostId = chi.URLParam(r, "postId")
 	_, claims, err := jwtauth.FromContext(r.Context())
-	commentJSON.UserId = strconv.Itoa(int(claims["user_id"].(float64)))
+	commentJSON.UserId = int(claims["user_id"].(float64))
 	if err != nil {
 		return nil, errors.New("Title later")
 	}

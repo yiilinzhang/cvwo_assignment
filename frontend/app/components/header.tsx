@@ -67,11 +67,12 @@ export function Header() {
             keepMounted
             open={Boolean(addAnchorEl)}
             onClose={handleAddClose}
+            
           >
-            <MenuItem component={Link} to="addposts">
+            <MenuItem component={Link} to="addposts" onClick={handleAddClose}>
               Add Posts
             </MenuItem>
-            <MenuItem component={Link} to="addtopics"
+            <MenuItem component={Link} to="addtopics" onClick={handleAddClose}
             >Add Topics</MenuItem>
           </Menu>
 

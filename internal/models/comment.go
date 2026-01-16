@@ -3,8 +3,8 @@ package models
 type Comment struct {
 	ID      int    `json:"comment_id"`
 	Content string `json:"content"`
-	UserId  string `json:"user_id"`
-	PostId string `json:"post_id" `
+	UserId  int `json:"user_id"`
+	PostId int `json:"post_id" `
 }
 
 //What i want returned, user.username, post.content, post.title, comment.content, comment.id 
@@ -14,5 +14,5 @@ type QueryCommentResponse struct {
 	ID      int    `json:"comment_id"`
 	Content string `json:"content"`
 	UserName string `json:"name"`
-	UserId  string `json:"user_id"`
+	UserId  int `json:"user_id"`
 }
