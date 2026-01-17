@@ -52,7 +52,6 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 	//TODO rmv prnt statm
 	//TODO check if i should shift API here
 	//TODO add empty user pw validation
-	log.Println(userJSON)
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(userJSON.Password), bcrypt.DefaultCost)
 	userJSON.Password=""
 	s := string(hashBytes)

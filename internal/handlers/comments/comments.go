@@ -25,7 +25,6 @@ const (
 func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postId := chi.URLParam(r, "postId")
 	postList, err := dataaccess.ListCommentByPost(conn, postId)
-	log.Println(postList)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
 	}

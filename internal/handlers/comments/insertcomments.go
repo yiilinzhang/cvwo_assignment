@@ -28,7 +28,6 @@ commentJSON.PostId = chi.URLParam(r, "postId")
 		return nil, errors.New("Title later")
 	}
 	//Validate input
-	log.Println(commentJSON)
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	newComment, err := dataaccess.InsertComment(conn, commentJSON)
@@ -36,13 +35,11 @@ commentJSON.PostId = chi.URLParam(r, "postId")
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
 	}
 
-	log.Println("got here 1")
 	//TODO check if more efficient to not unmardshell
 	data, err := json.Marshal(newComment)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListComments))
 	}
-	log.Println("got here 2")
 
 	return &api.Response{
 		Payload: api.Payload{

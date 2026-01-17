@@ -9,3 +9,5 @@ restore not null on password hash restriction
 4. Reply comment function?
 5. Login and auth?
 6. Adjust check curr user
+
+potentially add databse idnexing

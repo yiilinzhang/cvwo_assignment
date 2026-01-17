@@ -1,8 +1,9 @@
 import {
   ListIcon,
   PencilSimpleLineIcon,
-  TrashIcon, HouseIcon,
-  ArrowCircleUpRightIcon
+  TrashIcon,
+  HouseIcon,
+  ArrowCircleUpRightIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
@@ -31,21 +32,27 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
   return (
     <main>
       <div className={`${expanded ? `visible` : `invisible`}`}>
-        <div className="bg-gray-600 opacity-20 flex h-screen w-screen fixed top-20 left-0"></div>
-      
-        <div className="bg-white top-20 gap-2 h-screen fixed w-80 left-0 px-3 shadow flex flex-col">
-          
-          <Button 
-          component={Link}
+        <div className="bg-gray-600 opacity-20 flex fixed top-20 left-0 w-screen h-screen z-40"
+        onClick={expandSidebar}
+        ></div>
+        <div className="bg-white top-20 gap-2 h-screen fixed w-80 left-0 px-3 shadow flex flex-col z-50">
+          <Button
+            component={Link}
             to={`/`}
             onClick={expandSidebar}
-          startIcon={<HouseIcon/>} sx={{color: "black"}}>Home</Button>
-          <Button startIcon={<ArrowCircleUpRightIcon/>} sx={{color: "black"}}>Popular</Button>
+            startIcon={<HouseIcon />}
+            sx={{ color: "black" }}
+          >
+            Home
+          </Button>
+          <Button
+            startIcon={<ArrowCircleUpRightIcon />}
+            sx={{ color: "black" }}
+          >
+            Popular
+          </Button>
 
-
-
-
-        <hr/>
+          <hr />
           <Typography fontSize={25}>Others</Typography>
           {topicsList.map((item) => {
             return (
@@ -65,13 +72,17 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
                 {Number(item.user_id) === Number(user?.payload.data) && (
                   <div className="flex flex-row ">
                     <IconButton aria-label="edit_post">
-                      <PencilSimpleLineIcon size={20} color="balck" weight="bold"/>
+                      <PencilSimpleLineIcon
+                        size={20}
+                        color="balck"
+                        weight="bold"
+                      />
                     </IconButton>
                     <IconButton
                       aria-label="delete_post"
                       onClick={() => deleteTopic.mutate(item.topic_id)}
                     >
-                      <TrashIcon size={20} color="black" weight="bold"/>
+                      <TrashIcon size={20} color="black" weight="bold" />
                     </IconButton>
                   </div>
                 )}
