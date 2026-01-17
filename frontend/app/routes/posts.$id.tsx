@@ -1,7 +1,6 @@
 import { Post } from "../components/post";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
-import axios from "axios";
 import { Typography } from "@mui/material";
 import { EnvelopeOpenIcon } from "@phosphor-icons/react";
 

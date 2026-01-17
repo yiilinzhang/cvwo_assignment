@@ -1,6 +1,5 @@
-import { Button, Typography, TextField, Box } from "@mui/material";
+import { Button, Typography, TextField } from "@mui/material";
 import { Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 export default function SignUpPage() {
   const navigate = useNavigate();

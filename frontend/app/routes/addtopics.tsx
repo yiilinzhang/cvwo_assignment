@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { Button, Typography, TextField, MenuItem, Alert } from "@mui/material";
+import { Button, Typography, TextField } from "@mui/material";
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function AddTopics() {

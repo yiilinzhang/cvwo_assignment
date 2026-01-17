@@ -1,5 +1,4 @@
 import {
-  ChatsIcon,
   PencilSimpleLineIcon,
   TrashIcon,
   ArrowBendUpLeftIcon
