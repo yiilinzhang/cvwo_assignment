@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 export default function SignUpPage() {
   const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -43,12 +42,14 @@ export default function SignUpPage() {
           <div className="flex flex-col">
             <text className="text-l">username</text>
             <TextField required size="small" name="username" />
-            <text className="text-l">
-              password
-            </text>
-            <TextField required size="small" name="password" type="password"/>
+            <text className="text-l">password</text>
+            <TextField required size="small" name="password" type="password" />
           </div>
-          <Button variant="contained" sx={{ background: "#9BE3FF" }} type="submit">
+          <Button
+            variant="contained"
+            sx={{ background: "#9BE3FF" }}
+            type="submit"
+          >
             <Typography>Enter!</Typography>
           </Button>
           <Button component={Link} to="/sign-in">

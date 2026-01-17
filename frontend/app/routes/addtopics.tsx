@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { Button, Typography, TextField, MenuItem, Alert } from "@mui/material";
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
-export default function addTopics() {
+export default function AddTopics() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const handleSubmit = async (e) => {

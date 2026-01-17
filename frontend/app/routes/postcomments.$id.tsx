@@ -4,20 +4,37 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "~/hooks/useAuth";
 import { Button, TextField, Typography } from "@mui/material";
 import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
 
+type Comment = {
+  comment_id: number;
+  user_id: number;
+  content: string;
+  name: string;
+};
+
+type CommentsResponse = { payload?: { data?: Comment[] } };
+
+type PostItem = {
+  post_id: number;
+  user_id: number;
+  title: string;
+  content: string;
+};
+
+type PostsResponse = { payload?: { data?: PostItem[] } };
 //Should accept the post details so i can abstract the post id and selet comments
 //TODO chaneg this from cache to a new query
-export default function postComments({ params }) {
+export default function PostComments({ params }) {
   const navigate = useNavigate();
   const { user, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const postId = params?.id;
   //Fetch all comments for the particular post
-  const { isLoading, data } = useQuery({
+  const { isLoading, data } = useQuery<CommentsResponse>({
     queryKey: [`comments`, params.id],
     queryFn: async () => {
       const url = `http://localhost:8000/comments/${postId}`;
@@ -25,7 +42,7 @@ export default function postComments({ params }) {
       return await response.json();
     },
   });
-  const cachedPosts = queryClient.getQueryData(["posts", "all"]);
+  const cachedPosts = queryClient.getQueryData<PostsResponse>(["posts", "all"]);
   const { isLoading: postLoading, data: postData } = useQuery({
     queryKey: [`posts`, "all"],
     queryFn: async () => {
@@ -40,7 +57,7 @@ export default function postComments({ params }) {
     (p) => p.post_id === Number(postId)
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = e.target;
@@ -118,15 +135,16 @@ export default function postComments({ params }) {
             variant="outlined"
             disableRipple
             sx={{ color: "black", borderColor: "black", borderRadius: 20 }}
-            onClick={() => setIsEditing(true)}
+            onClick={() => {user ? setIsEditing(true) : alert("login to leave a comment")}}
           >
             <PlusIcon />
             <Typography>Add a Comment</Typography>
           </Button>
         )}
       </div>
-      {data?.payload.data.map((comment) => (
+      {data?.payload?.data?.map((comment) => (
         <Comments
+        key = {comment.comment_id}
           username={comment.name}
           content={comment.content}
           isOwner={Number(comment.user_id) === user?.payload.data}
