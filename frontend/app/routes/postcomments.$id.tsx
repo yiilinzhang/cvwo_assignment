@@ -115,6 +115,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
               fullWidth={true}
               multiline={true}
               rows={3}
+              required
               name="comment"
             />
             <Button

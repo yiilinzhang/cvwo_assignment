@@ -3,17 +3,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { Typography } from "@mui/material";
 import { EnvelopeOpenIcon } from "@phosphor-icons/react";
-import type { Route } from "./+types/posts.$id";
+import { useParams } from "react-router";
 
-export default function Posts({ params }: Route.ComponentProps) {
+export default function Posts() {
+  const { id } = useParams();
+
   const { user, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
-  const topicId = params?.id;
   const { isLoading: postLoading, data: postData } = useQuery({
-    queryKey: [`posts`, params.id ?? "all"],
+    queryKey: [`posts`, id?? "all"],
     queryFn: async () => {
-      const url = topicId
-        ? `http://localhost:8000/posts/${params.id}`
+      const url = id
+        ? `http://localhost:8000/posts/${id}`
         : "http://localhost:8000/posts";
       const response = await fetch(url);
       return await response.json();
@@ -21,7 +22,7 @@ export default function Posts({ params }: Route.ComponentProps) {
   });
   const topics = queryClient.getQueryData(["topics"])?.payload?.data;
 
-  const currTopic = topics?.find((t) => t.topic_id === Number(params.id))
+  const currTopic = topics?.find((t) => t.topic_id === Number(id))
     ?.title;
   return (
     <div className="flex flex-col items-center gap-8 py-6 px-20 h-screen">
