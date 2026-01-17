@@ -1,15 +1,17 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
+import { type FormEvent } from "react";
+
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function AddTopics() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.target;
+    const form = e.currentTarget;
     const formData = new FormData(form);
     const body = {
       title: formData.get("title"),

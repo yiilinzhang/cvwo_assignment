@@ -60,7 +60,7 @@ export default function PostComments({ params }) {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.target;
+    const form = e.currentTarget;
     const formData = new FormData(form);
     const body = {
       content: formData.get("comment"),
