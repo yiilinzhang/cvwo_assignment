@@ -7,6 +7,7 @@ import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 import { useState, type FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import type { Route } from "./+types/postcomments.$id";
 
 type Comment = {
   comment_id: number;
@@ -27,7 +28,7 @@ type PostItem = {
 type PostsResponse = { payload?: { data?: PostItem[] } };
 //Should accept the post details so i can abstract the post id and selet comments
 //TODO chaneg this from cache to a new query
-export default function PostComments({ params }) {
+export default function PostComments({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { user, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();

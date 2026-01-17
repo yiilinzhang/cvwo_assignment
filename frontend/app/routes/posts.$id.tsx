@@ -3,8 +3,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { Typography } from "@mui/material";
 import { EnvelopeOpenIcon } from "@phosphor-icons/react";
+import type { Route } from "./+types/posts.$id";
 
-export default function Posts({ params }) {
+export default function Posts({ params }: Route.ComponentProps) {
   const { user, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const topicId = params?.id;
