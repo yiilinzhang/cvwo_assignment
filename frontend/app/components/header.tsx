@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import { useNavigate } from "react-router";
 import { Button, IconButton, Typography, Menu, MenuItem } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import axios from "axios";
 
 //Header component for all pages
@@ -13,20 +13,20 @@ export function Header() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isLoading: userLoading } = useAuth();
-  const [userAnchorEl, setUserAnchorEl] = useState(null);
-  const [addAnchorEl, setAddAnchorEl] = useState(null);
+  const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
+  const [addAnchorEl, setAddAnchorEl] = useState<HTMLElement | null>(null);
   const { isLoading, data } = useQuery({
     queryKey: [`topics`],
     queryFn: getTopics,
   });
   if (isLoading || userLoading) return <div>Loading...</div>;
-  const handleUserClick = (event) => {
+  const handleUserClick = (event: MouseEvent<HTMLElement>) => {
     setUserAnchorEl(event.currentTarget);
   };
   const handleUserClose = () => {
     setUserAnchorEl(null);
   };
-  const handleAddClick = (event) => {
+  const handleAddClick = (event: MouseEvent<HTMLElement>) => {
     setAddAnchorEl(event.currentTarget);
   };
   const handleAddClose = () => {
@@ -53,7 +53,12 @@ export function Header() {
           </Typography>
         </Link>
         <div className="w-full flex justify-end px-4">
-          <IconButton
+    
+
+          {/* TODO add drop down to log out */}
+          {user ? (
+            <>
+            <IconButton
             aria-controls="add-dropdown"
             onClick={handleAddClick}
             aria-haspopup="true"
@@ -75,10 +80,6 @@ export function Header() {
             <MenuItem component={Link} to="addtopics" onClick={handleAddClose}
             >Add Topics</MenuItem>
           </Menu>
-
-          {/* TODO add drop down to log out */}
-          {user ? (
-            <>
               <IconButton
                 aria-controls="user-dropdown"
                 aria-haspopup="true"

@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Button, Typography, TextField, MenuItem, Alert } from "@mui/material";
 import axios from "axios";
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
-export default function addPosts({ params }) {
+export default function EditPosts({ params }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const cachedPosts = queryClient.getQueryData(["posts", "all"]);

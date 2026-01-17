@@ -8,7 +8,15 @@ import { IconButton } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-export function Comments({ username, content, isOwner, id }) {
+
+type CommentProps = {
+  username: string;
+  content: string;
+  isOwner: boolean;
+  id: number;
+}
+
+export function Comments({ username, content, isOwner, id } : CommentProps) {
   const queryClient = useQueryClient();
   const deleteComment = useMutation({
     mutationFn: async () => {

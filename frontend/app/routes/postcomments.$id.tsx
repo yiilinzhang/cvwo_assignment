@@ -6,7 +6,7 @@ import { Button, TextField, Typography } from "@mui/material";
 import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 //Should accept the post details so i can abstract the post id and selet comments
 //TODO chaneg this from cache to a new query
