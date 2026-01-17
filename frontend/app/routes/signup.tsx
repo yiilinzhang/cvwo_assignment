@@ -14,7 +14,6 @@ export default function SignUpPage() {
       username: formData.get("username"),
       password: formData.get("password"),
     };
-    console.log(body);
     try {
       const response = await fetch("http://localhost:8000/users", {
         method: "POST",
@@ -26,7 +25,6 @@ export default function SignUpPage() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log(response);
       const result = await response.json();
     } catch (error) {
       console.error("Error:", error);

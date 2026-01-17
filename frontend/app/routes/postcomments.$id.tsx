@@ -48,7 +48,6 @@ export default function postComments({ params }) {
     const body = {
       content: formData.get("comment"),
     };
-    console.log(body);
 
     //TODO change to axios
     axios
@@ -61,7 +60,6 @@ export default function postComments({ params }) {
         queryClient.invalidateQueries({ queryKey: [`comments`, params.id] });
       });
   };
-  console.log(data)
   return (
     <div className="flex flex-col gap-6 py-6 px-20">
       <Button

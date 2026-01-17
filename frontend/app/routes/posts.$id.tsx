@@ -19,12 +19,10 @@ export default function Posts({ params }) {
       return await response.json();
     },
   });
-  console.log(postData?.payload.data);
   const topics = queryClient.getQueryData(["topics"])?.payload?.data;
 
   const currTopic = topics?.find((t) => t.topic_id === Number(params.id))
     ?.title;
-  console.log(currTopic);
   return (
     <div className="flex flex-col items-center gap-8 py-6 px-20 h-screen">
       {/* TODO change this so it shows the curr topic */}

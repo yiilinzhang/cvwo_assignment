@@ -14,7 +14,6 @@ export default function addTopics() {
     const body = {
       title: formData.get("title"),
     };
-    console.log(body);
     try {
       //TODO change to axios
       const response = await fetch("http://localhost:8000/topics", {
@@ -28,7 +27,6 @@ export default function addTopics() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log(response);
       const result = await response.json();
     } catch (error) {
       console.error("Error:", error);

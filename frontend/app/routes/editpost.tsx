@@ -32,7 +32,6 @@ export default function addPosts({ params }) {
     const body = {
       content: formData.get("content"),
     };
-    console.log(body);
     updatePost.mutate(body);
   };
   const updatePost = useMutation({

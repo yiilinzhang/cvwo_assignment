@@ -23,7 +23,6 @@ export default function addPosts() {
       content: formData.get("content"),
       topic_id: Number(formData.get("topic_id")),
     };
-    console.log(body);
     try {
       //TODO change to axios
       const response = await fetch("http://localhost:8000/posts", {
@@ -37,7 +36,6 @@ export default function addPosts() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log(response);
       const result = await response.json();
     } catch (error) {
       console.error("Error:", error);
