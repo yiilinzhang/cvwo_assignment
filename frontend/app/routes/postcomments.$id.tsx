@@ -104,7 +104,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
           id={currPost.post_id}
           title={currPost.title}
           content={currPost.content}
-          isOwner={Number(currPost.user_id) === user?.payload.data}
+          isOwner={Number(currPost.user_id) === user?.payload?.data}
           showChat={false}
         />
       )}
@@ -169,7 +169,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
           key={comment.comment_id}
           username={comment.name}
           content={comment.content}
-          isOwner={Number(comment.user_id) === user?.payload.data}
+          isOwner={Number(comment.user_id) === user?.payload?.data}
           id={comment.comment_id}
           postId={postId}
         />

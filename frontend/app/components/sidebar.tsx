@@ -6,7 +6,7 @@ import {
   ArrowCircleUpRightIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button, IconButton, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -69,7 +69,7 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
                   </Typography>
                 </Button>
                 {/* TODO update db to num and chaneg this */}
-                {Number(item.user_id) === Number(user?.payload.data) && (
+                {Number(item.user_id) === Number(user?.payload?.data) && (
                     <IconButton
                       aria-label="delete_post"
                       onClick={() => deleteTopic.mutate(item.topic_id)}

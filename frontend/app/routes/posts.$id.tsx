@@ -56,7 +56,7 @@ export default function Posts() {
             id={post.post_id}
             title={post.title}
             content={post.content}
-            isOwner={Number(post.user_id) === user?.payload.data}
+            isOwner={Number(post.user_id) === user?.payload?.data}
             showChat={true}
           />
         ))
