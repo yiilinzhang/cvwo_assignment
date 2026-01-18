@@ -59,8 +59,9 @@ export default function AddTopics() {
           type="submit"
           variant="contained"
           sx={{ background: "#9BE3FF", mt: 2 }}
+          disabled={addTopics.isPending}
         >
-          <Typography sx={{ fontSize: "20px" }}>Add now!</Typography>
+          <Typography sx={{ fontSize: "20px" }}>{addTopics.isPending ? "Adding" : "Add now!"}</Typography>
         </Button>
       </div>
     </form>

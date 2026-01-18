@@ -42,19 +42,20 @@ export default function LoginPage() {
     <form onSubmit={handleSubmit}>
       <div className="w-screen h-screen bg-[#F5F5F5] flex justify-center pt-40">
         <div className="flex flex-col w-96 rounded-2xl h-80 bg-white items-center py-8 gap-3">
-          <text className="font-bold text-2xl">Sign In</text>
+          <Typography >Sign In</Typography>
           <div className="flex flex-col">
-            <text className="text-l">username</text>
+            <Typography >username</Typography>
             <TextField required size="small" name="username" />
-            <text className="text-l">password</text>
+            <Typography >password</Typography>
             <TextField required size="small" name="password" type="password" />
           </div>
           <Button
             variant="contained"
             sx={{ background: "#9BE3FF" }}
             type="submit"
+            disabled={login.isPending}
           >
-            <Typography>Enter!</Typography>
+            <Typography>{login.isPending ? "Loading" : "Enter!"}</Typography>
           </Button>
           <Button component={Link} to="/sign-up">
             <Typography>Sign-up instead</Typography>

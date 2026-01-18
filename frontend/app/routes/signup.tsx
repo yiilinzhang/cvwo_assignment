@@ -1,6 +1,7 @@
 import { Button, Typography, TextField } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import type { FormEvent } from "react";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
 export default function SignUpPage() {
@@ -18,18 +19,24 @@ export default function SignUpPage() {
       alert("Failed to create account.");
     }
   }) 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    const form = e.target;
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
     const formData = new FormData(form);
+    const username = String(formData.get("username") || "").trim()
+    const password = String(formData.get("password") || "").trim()
+    if (!username || !password) {
+      alert("Username and password cannot be empty");
+      return;
+    }
     const body = {
-      username: formData.get("username"),
-      password: formData.get("password"),
+      username: username,
+      password: password,
     };
     signup.mutate(body);
-    
   };
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="w-screen h-screen bg-[#F5F5F5] flex justify-center pt-40">
@@ -45,10 +52,14 @@ export default function SignUpPage() {
             variant="contained"
             sx={{ background: "#9BE3FF" }}
             type="submit"
+            disabled={signup.isPending}
           >
-            <Typography>Enter!</Typography>
+            <Typography>
+              {signup.isPending ? "Loading" : "Enter!"}</Typography>
           </Button>
-          <Button component={Link} to="/sign-in">
+          <Button component={Link} to="/sign-in"
+
+          >
             <Typography>Sign-in instead</Typography>
           </Button>
         </div>
