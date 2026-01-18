@@ -3,15 +3,26 @@ import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
 import axios from "axios";
 import type { Route } from "./+types/editpost";
+import type { FormEvent } from "react";
+
+type PostItem = {
+  post_id: number;
+  user_id: number;
+  title: string;
+  content: string;
+  topic_id: number;
+}
+
+type PostResponse = { payload?: {data?: PostItem[]}}
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function EditPosts({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const cachedPosts = queryClient.getQueryData(["posts", "all"]);
+  const cachedPosts = queryClient.getQueryData<PostResponse>(["posts", "all"]);
   const postId = params?.id;
 
-  const { isLoading, data: postData } = useQuery({
+  const { isLoading, data: postData } = useQuery<PostResponse>({
     queryKey: [`posts`, "all"],
     queryFn: async () => {
       const url = "http://localhost:8000/posts";
@@ -25,18 +36,16 @@ export default function EditPosts({ params }: Route.ComponentProps) {
     (p) => p.post_id === Number(postId)
   );
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.target;
+    const form = e.currentTarget;
     const formData = new FormData(form);
-    const body = {
-      content: formData.get("content"),
-    };
-    updatePost.mutate(body);
+    const content = String(formData.get("content") || "").trim()
+    updatePost.mutate({content});
   };
   const updatePost = useMutation({
-    mutationFn: async (body) => {
+    mutationFn: async (body: {content: string}) => {
       await axios.patch(`http://localhost:8000/posts/${postId}`, body, {
         withCredentials: true,
       });
@@ -50,7 +59,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   });
 
   return (
-    <form method="post" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       {isLoading ? (
         <div></div>
       ) : (

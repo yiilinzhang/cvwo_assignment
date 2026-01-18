@@ -40,6 +40,10 @@ export function Comments({ username, content, isOwner, id, postId }: CommentProp
     const form = e.currentTarget;
     const formData = new FormData(form);
     const content = String(formData.get("comment") || "").trim();
+    if(!content) {
+      alert("Comment cannot be empty");
+      return
+    }
     updateComment.mutate({ content });
   };
 
@@ -50,7 +54,7 @@ export function Comments({ username, content, isOwner, id, postId }: CommentProp
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.invalidateQueries({ queryKey: ["comments", id] });
 
       alert("Post sucessfully deleted");
     },

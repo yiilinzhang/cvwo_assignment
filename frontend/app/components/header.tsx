@@ -55,7 +55,7 @@ export function Header() {
         <div className="w-full flex justify-end px-4">
     
 
-          {/* TODO add drop down to log out */}
+          {/* TODO impmenet my post */}
           {user ? (
             <>
             <IconButton

@@ -41,7 +41,7 @@ export default function AddTopics() {
   };
 
   return (
-    <form method="post" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-12 items-center py-12 ">
         <Typography color="black" fontWeight={500} fontSize="2rem">
           Create a new Topic today!

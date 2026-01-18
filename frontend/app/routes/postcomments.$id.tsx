@@ -107,7 +107,6 @@ export default function PostComments({ params }: Route.ComponentProps) {
       </Typography> */}
         {isEditing ? (
           <form
-            method="post"
             onSubmit={handleSubmit}
             className="w-full flex flex-col gap-2"
           >

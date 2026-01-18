@@ -48,7 +48,7 @@ export default function AddPosts() {
   };
 
   return (
-    <form method="post" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-1 items-center py-12">
         <Typography color="black" fontWeight={500} fontSize="2rem">
           Create a new post today!

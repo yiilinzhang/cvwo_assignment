@@ -34,7 +34,7 @@ export default function SignUpPage() {
     navigate("/");
   };
   return (
-    <form method="post" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className="w-screen h-screen bg-[#F5F5F5] flex justify-center pt-40">
         <div className="flex flex-col w-96 rounded-2xl h-80 bg-white items-center py-8 gap-4">
           <text className="font-bold text-2xl">Sign Up</text>
