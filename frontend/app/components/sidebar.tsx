@@ -1,6 +1,5 @@
 import {
   ListIcon,
-  PencilSimpleLineIcon,
   TrashIcon,
   HouseIcon,
   ArrowCircleUpRightIcon,
@@ -10,16 +9,13 @@ import { useState } from "react";
 import { Button, IconButton, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useAuth } from "../hooks/useAuth";
-
 type Topic = {topic_id: number; title: string; user_id: number}
 
 
 //SIidebar component for topics list. Used in Header
-export function SideBar({ topicsList = [] }: { topicsList?: Topic[] }) {
+export function SideBar({ topicsList = [], userId, }: { topicsList?: Topic[], userId: number | null }) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
-  const { user, isLoading } = useAuth();
   const expandSidebar = () => setExpanded(!expanded);
   const deleteTopic = useMutation({
     mutationFn: async (id: number) => {
@@ -72,7 +68,7 @@ export function SideBar({ topicsList = [] }: { topicsList?: Topic[] }) {
                   </Typography>
                 </Button>
                 {/* TODO update db to num and chaneg this */}
-                {item.user_id === Number(user?.payload?.data) && (
+                {item.user_id === userId && (
                     <IconButton
                       aria-label="delete_post"
                       onClick={() => deleteTopic.mutate(item.topic_id)}

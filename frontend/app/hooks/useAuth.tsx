@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-type UserResponse = { payload?: { data?: Number } };
+type UserResponse = { payload?: { data?: number } };
 //Custom hook to check if user is authenticated + username
 export function useAuth() {
   const { isLoading, data, isError } = useQuery<UserResponse>({
@@ -12,6 +12,8 @@ export function useAuth() {
       return await response.data;
     },
     retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 60 * 10 * 1000
   });
 
   return {
