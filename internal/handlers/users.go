@@ -1,10 +1,11 @@
-package users
+package handlers
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
@@ -23,8 +24,7 @@ const (
 )
 
 
-
-func HandleList(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userList, err := dataaccess.ListUser(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
@@ -112,3 +112,47 @@ func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 	
 }
 
+
+func HandleLogout (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
+	 cookie := http.Cookie{
+		Name: "jwt",
+		Value: "",
+		Path: "/",
+		MaxAge: -1,
+		HttpOnly: true,
+		//TODO Need to change this in prod to true
+		Secure: false,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+	return &api.Response{
+		Payload: api.Payload{
+			Data: nil,
+		},
+		Messages: []string{"login successful"},
+		ErrorCode: 0,
+	}, nil
+}
+
+//Used to check if the user is loggedin based on cookie
+
+func HandleMe (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
+	 _, claims, err := jwtauth.FromContext(r.Context())
+	userID := int(claims["user_id"].(float64))
+	if err != nil {
+		return nil, errors.New("Title later")
+	}
+	//TODO depreciated
+	// userid, err := dataaccess.FetchUserName(conn, userID)
+	// if err != nil {
+	// 	return nil, errors.New("Title later")
+	// }
+	data, err := json.Marshal(userID)
+	return &api.Response{
+		Payload: api.Payload{
+			Data: data,
+		},
+		Messages: []string{"login successful"},
+		ErrorCode: 0,
+	}, nil
+}

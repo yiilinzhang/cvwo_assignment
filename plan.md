@@ -21,3 +21,11 @@ new todo
 6. Fix codebase err and to do 
 7. Remove some alerts in frontend, always having to press oay is pretty annoying :D
 
+
+
+README notes: 
+for fdraftign readme
+
+folder convenction
+react: codesgen youtube use this when writing readme struc
+go: go chi
