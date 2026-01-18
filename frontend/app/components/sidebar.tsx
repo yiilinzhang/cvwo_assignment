@@ -12,14 +12,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 
+type Topic = {topic_id: number; title: string; user_id: number}
+
+
 //SIidebar component for topics list. Used in Header
-export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
+export function SideBar({ topicsList = [] }: { topicsList?: Topic[] }) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
   const { user, isLoading } = useAuth();
   const expandSidebar = () => setExpanded(!expanded);
   const deleteTopic = useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async (id: number) => {
       await axios.delete(`http://localhost:8000/topics/${id}`, {
         withCredentials: true,
       });
@@ -69,7 +72,7 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
                   </Typography>
                 </Button>
                 {/* TODO update db to num and chaneg this */}
-                {Number(item.user_id) === Number(user?.payload?.data) && (
+                {item.user_id === Number(user?.payload?.data) && (
                     <IconButton
                       aria-label="delete_post"
                       onClick={() => deleteTopic.mutate(item.topic_id)}
@@ -90,7 +93,7 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
           width: "60px",
           height: "60px",
           "&:hover": {
-            backgroundColor: "#6AD5FF", // Background color on hover
+            backgroundColor: "#6AD5FF", 
           },
         }}
       >

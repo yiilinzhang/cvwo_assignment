@@ -4,13 +4,14 @@ import { Button, Typography, TextField } from "@mui/material";
 import { type FormEvent } from "react";
 import axios from "axios";
 
+
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function AddTopics() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const addTopics = useMutation({
-    mutationFn: async (body: any) =>
+    mutationFn: async (body: {title: string}) =>
       await axios.post("http://localhost:8000/topics", body, {
         withCredentials: true,
       }),

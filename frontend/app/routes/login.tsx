@@ -5,13 +5,17 @@ import { type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
+type LogInBody = {
+  username: string;
+  password: string;
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  //TODO update type from any
   const login = useMutation({
-    mutationFn: async (body: any) => {
+    mutationFn: async (body: LogInBody) => {
       await axios.post("http://localhost:8000/login", body, {
         withCredentials: true,
       });

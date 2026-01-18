@@ -8,7 +8,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useState, type MouseEvent } from "react";
 import axios from "axios";
 
-type Topic = {topic_id: number; title: string}
+type Topic = {topic_id: number; title: string; user_id: number}
 type TopicsResponse = {payload?: {data?: Topic[]}}
 
 //Header component for all pages

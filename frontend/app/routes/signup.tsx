@@ -4,12 +4,18 @@ import axios from "axios";
 import type { FormEvent } from "react";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
+
+type SignUpBody = {
+  username: string;
+  password: string;
+}
+
 export default function SignUpPage() {
   const navigate = useNavigate();
 
   //TODO update type
   const signup = useMutation({
-    mutationFn: async (body: any) => {
+    mutationFn: async (body: SignUpBody) => {
       await axios.post("http://localhost:8000/users", body)
     },
     onSuccess: () => {//TODO add code to save jwt
