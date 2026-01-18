@@ -3,7 +3,6 @@ package posts
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"

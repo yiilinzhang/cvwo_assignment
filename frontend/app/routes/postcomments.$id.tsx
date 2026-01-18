@@ -38,7 +38,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
   const { isLoading, data } = useQuery<CommentsResponse>({
     queryKey: [`comments`, params.id],
     queryFn: async () => {
-      const url = `http://localhost:8000/comments/${postId}`;
+      const url = `http://localhost:8000/posts/${postId}/comments`;
       const response = await fetch(url);
       return await response.json();
     },
@@ -69,7 +69,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
 
     //TODO change to axios
     axios
-      .post(`http://localhost:8000/comments/${postId}`, body, {
+      .post(`http://localhost:8000/posts/${postId}/comments`, body, {
         withCredentials: true,
       })
       .then(() => {
@@ -118,26 +118,44 @@ export default function PostComments({ params }: Route.ComponentProps) {
               required
               name="comment"
             />
-            <Button
-              variant="outlined"
-              disableRipple
-              sx={{
-                color: "black",
-                borderColor: "black",
-                borderRadius: 20,
-                width: 200,
-              }}
-              type="submit"
-            >
-              <Typography>Post Comment</Typography>
-            </Button>
+            <div>
+              <Button
+                variant="outlined"
+                disableRipple
+                sx={{
+                  color: "black",
+                  borderColor: "black",
+                  borderRadius: 20,
+                  width: 200,
+                  marginRight: 2,
+                }}
+                type="submit"
+              >
+                Post Comment
+              </Button>
+              <Button
+                variant="outlined"
+                disableRipple
+                sx={{
+                  color: "black",
+                  borderColor: "black",
+                  borderRadius: 20,
+                  width: 200,
+                }}
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </Button>
+            </div>
           </form>
         ) : (
           <Button
             variant="outlined"
             disableRipple
             sx={{ color: "black", borderColor: "black", borderRadius: 20 }}
-            onClick={() => {user ? setIsEditing(true) : alert("login to leave a comment")}}
+            onClick={() => {
+              user ? setIsEditing(true) : alert("login to leave a comment");
+            }}
           >
             <PlusIcon />
             <Typography>Add a Comment</Typography>
@@ -146,13 +164,13 @@ export default function PostComments({ params }: Route.ComponentProps) {
       </div>
       {data?.payload?.data?.map((comment) => (
         <Comments
-        key = {comment.comment_id}
+          key={comment.comment_id}
           username={comment.name}
           content={comment.content}
           isOwner={Number(comment.user_id) === user?.payload.data}
           id={comment.comment_id}
+          postId={postId}
         />
-        
       ))}
     </div>
   );

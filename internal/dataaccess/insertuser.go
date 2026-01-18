@@ -2,7 +2,6 @@ package dataaccess
 
 import (
 	"context"
-	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

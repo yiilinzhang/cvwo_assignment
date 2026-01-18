@@ -70,21 +70,12 @@ export function SideBar({ topicsList = [] }: { topicsList?: any[] }) {
                 </Button>
                 {/* TODO update db to num and chaneg this */}
                 {Number(item.user_id) === Number(user?.payload.data) && (
-                  <div className="flex flex-row ">
-                    <IconButton aria-label="edit_post">
-                      <PencilSimpleLineIcon
-                        size={20}
-                        color="balck"
-                        weight="bold"
-                      />
-                    </IconButton>
                     <IconButton
                       aria-label="delete_post"
                       onClick={() => deleteTopic.mutate(item.topic_id)}
                     >
                       <TrashIcon size={20} color="black" weight="bold" />
                     </IconButton>
-                  </div>
                 )}
               </div>
             );

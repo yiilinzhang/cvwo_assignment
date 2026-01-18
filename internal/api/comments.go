@@ -10,3 +10,9 @@ type DeleteCommentInput struct {
 	CommentId int `json:"comment_id"`;
 	UserId int `json:"user_id"`;	
 }
+
+type UpdateCommentInput struct {
+	CommentId int `json:"comment_id"`;
+	Content string `json:"content"`;
+	UserId int `json:"user_id"`;	 
+}
