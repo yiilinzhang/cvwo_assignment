@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField, MenuItem } from "@mui/material";
 import axios from "axios";
@@ -11,11 +11,25 @@ export default function AddPosts() {
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topiclist`],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/topics");
-      return await response.json();
+      const response = await axios.get("http://localhost:8000/topics")
+      return response.data;
     },
   });
   const navigate = useNavigate();
+
+  const createPost = useMutation({
+    mutationFn: async (body) => await axios.post("http://localhost:8000/posts", body, {
+        withCredentials: true,
+  }),
+  onSuccess:() => {alert("Successfully created post.");
+    navigate("/");
+},
+  onError:() => {
+      alert("Failed to create post.");
+  },
+  }
+  
+)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,17 +48,7 @@ export default function AddPosts() {
       content: formData.get("content"),
       topic_id: Number(formData.get("topic_id")),
     };
-    try {
-      await axios.post("http://localhost:8000/posts", body, {
-        withCredentials: true,
-      });
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to create post.");
-      return;
-    }
-    alert("Successfully created post.");
-    navigate("/");
+    createPost.mutate(body);
   };
 
   return (
@@ -107,8 +111,9 @@ export default function AddPosts() {
           type="submit"
           variant="contained"
           sx={{ background: "#9BE3FF", mt: 2 }}
+          disabled={createPost.isPending}
         >
-          <Typography sx={{ fontSize: "20px" }}>Post now!</Typography>
+          <Typography sx={{ fontSize: "20px" }}>{createPost.isPending ? "Posting...": "Post now!"}</Typography>
         </Button>
       </div>
     </form>

@@ -25,9 +25,8 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   const { isLoading, data: postData } = useQuery<PostResponse>({
     queryKey: [`posts`, "all"],
     queryFn: async () => {
-      const url = "http://localhost:8000/posts";
-      const response = await fetch(url);
-      return await response.json();
+      const response = await axios.get("http://localhost:8000/posts")
+      return response.data
     },
     initialData: cachedPosts,
   });
@@ -60,8 +59,8 @@ export default function EditPosts({ params }: Route.ComponentProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      {isLoading ? (
-        <div></div>
+      {isLoading || !currPost ? (
+        <div>Loading...</div>
       ) : (
         <div className="flex flex-col gap-1 items-center py-12">
           <Typography color="black" fontWeight={500} fontSize="2rem">
@@ -120,8 +119,9 @@ export default function EditPosts({ params }: Route.ComponentProps) {
             type="submit"
             variant="contained"
             sx={{ background: "#9BE3FF", mt: 2 }}
+            disabled={updatePost.isPending}
           >
-            <Typography sx={{ fontSize: "20px" }}>Save</Typography>
+            <Typography sx={{ fontSize: "20px" }}>{updatePost.isPending ? "Saving..." : "Save"}</Typography>
           </Button>
         </div>
       )}

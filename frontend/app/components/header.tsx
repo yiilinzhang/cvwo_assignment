@@ -15,6 +15,8 @@ export function Header() {
   const { user, isLoading: userLoading } = useAuth();
   const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
   const [addAnchorEl, setAddAnchorEl] = useState<HTMLElement | null>(null);
+  const getTopics = async () => await axios.get("http://localhost:8000/topics")
+
   const { isLoading, data } = useQuery({
     queryKey: [`topics`],
     queryFn: getTopics,
@@ -116,9 +118,3 @@ export function Header() {
     </div>
   );
 }
-//TODO change to axios
-
-const getTopics = async () => {
-  const response = await fetch("http://localhost:8000/topics");
-  return await response.json();
-};

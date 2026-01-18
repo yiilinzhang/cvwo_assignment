@@ -37,10 +37,9 @@ export default function PostComments({ params }: Route.ComponentProps) {
   //Fetch all comments for the particular post
   const { isLoading, data } = useQuery<CommentsResponse>({
     queryKey: [`comments`, params.id],
-    queryFn: async () => {
-      const url = `http://localhost:8000/posts/${postId}/comments`;
-      const response = await fetch(url);
-      return await response.json();
+    queryFn: async () => { 
+      const response = await axios.get( `http://localhost:8000/posts/${postId}/comments`)
+      return await response.data;
     },
   });
   const cachedPosts = queryClient.getQueryData<PostsResponse>(["posts", "all"]);
@@ -48,8 +47,9 @@ export default function PostComments({ params }: Route.ComponentProps) {
     queryKey: [`posts`, "all"],
     queryFn: async () => {
       const url = "http://localhost:8000/posts";
-      const response = await fetch(url);
-      return await response.json();
+      const response = await axios.get(url);
+
+      return response.data;
     },
     initialData: cachedPosts,
   });

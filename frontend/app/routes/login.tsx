@@ -6,6 +6,8 @@ import { type FormEvent } from "react";
 export default function LoginPage() {
   const navigate = useNavigate();
 
+
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -15,6 +17,7 @@ export default function LoginPage() {
       username: formData.get("username"),
       password: formData.get("password"),
     };
+    
     try {
       const response = await fetch("http://localhost:8000/login", {
         method: "POST",

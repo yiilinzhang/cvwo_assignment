@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { Typography } from "@mui/material";
 import { EnvelopeOpenIcon } from "@phosphor-icons/react";
 import { useParams } from "react-router";
+import axios from "axios";
 
 export default function Posts() {
   const { id } = useParams();
@@ -16,8 +17,9 @@ export default function Posts() {
       const url = id
         ? `http://localhost:8000/posts/${id}`
         : "http://localhost:8000/posts";
-      const response = await fetch(url);
-      return await response.json();
+      const response = await axios.get(url)
+
+      return response.data;
     },
   });
   const topics = queryClient.getQueryData(["topics"])?.payload?.data;

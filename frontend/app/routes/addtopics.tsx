@@ -1,43 +1,38 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
 import { type FormEvent } from "react";
+import axios from "axios";
 
 //TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function AddTopics() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const addTopics = useMutation({
+    mutationFn: async (body: any) =>
+      await axios.post("http://localhost:8000/topics", body, {
+        withCredentials: true,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["topics"] });
+      alert("Successfully created topic.");
+      navigate("/");
+    },
+    onError: () => alert("Failed to create topic."),
+  });
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const body = {
-      title: formData.get("title"),
-    };
-    try {
-      //TODO change to axios
-      const response = await fetch("http://localhost:8000/topics", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const result = await response.json();
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to create topic.");
+    const title = String(formData.get("title") || "").trim()
+    if (!title) {
+      alert("Title cannot be empty");
       return;
     }
-    queryClient.invalidateQueries({ queryKey: ["topics"] });
-    alert("Successfully created topic.");
-    navigate("/");
+    addTopics.mutate({title})
   };
 
   return (
