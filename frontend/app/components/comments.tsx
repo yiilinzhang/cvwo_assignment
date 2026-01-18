@@ -12,17 +12,17 @@ type CommentProps = {
   username: string;
   content: string;
   isOwner: boolean;
-  id: number;
+  commentId: number;
   postId: number;
 };
 
-export function Comments({ username, content, isOwner, id, postId }: CommentProps) {
+export function Comments({ username, content, isOwner, commentId, postId }: CommentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   //TODO fix type later
   const updateComment = useMutation({
     mutationFn: async (body: { content: string }) => {
-      await axios.patch(`http://localhost:8000/comments/${id}`, body, {
+      await axios.patch(`http://localhost:8000/comments/${commentId}`, body, {
         withCredentials: true,
       });
     },
@@ -49,12 +49,12 @@ export function Comments({ username, content, isOwner, id, postId }: CommentProp
 
   const deleteComment = useMutation({
     mutationFn: async () => {
-      await axios.delete(`http://localhost:8000/comments/${id}`, {
+      await axios.delete(`http://localhost:8000/comments/${commentId}`, {
         withCredentials: true,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", id] });
+      queryClient.invalidateQueries({ queryKey: ["comments", commentId] });
 
       alert("Post sucessfully deleted");
     },

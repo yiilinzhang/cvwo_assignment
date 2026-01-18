@@ -9,11 +9,16 @@ import { useState } from "react";
 import { Button, IconButton, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-type Topic = {topic_id: number; title: string; user_id: number}
-
+type Topic = { topic_id: number; title: string; user_id: number };
 
 //SIidebar component for topics list. Used in Header
-export function SideBar({ topicsList = [], userId, }: { topicsList?: Topic[], userId: number | null }) {
+export function SideBar({
+  topicsList = [],
+  userId,
+}: {
+  topicsList?: Topic[];
+  userId: number | null;
+}) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
   const expandSidebar = () => setExpanded(!expanded);
@@ -31,8 +36,9 @@ export function SideBar({ topicsList = [], userId, }: { topicsList?: Topic[], us
   return (
     <main>
       <div className={`${expanded ? `visible` : `invisible`}`}>
-        <div className="bg-gray-600 opacity-20 flex fixed top-20 left-0 w-screen h-screen z-40"
-        onClick={expandSidebar}
+        <div
+          className="bg-gray-600 opacity-20 flex fixed top-20 left-0 w-screen h-screen z-40"
+          onClick={expandSidebar}
         ></div>
         <div className="bg-white top-20 gap-2 h-screen fixed w-80 left-0 px-3 shadow flex flex-col z-50">
           <Button
@@ -68,13 +74,13 @@ export function SideBar({ topicsList = [], userId, }: { topicsList?: Topic[], us
                   </Typography>
                 </Button>
                 {/* TODO update db to num and chaneg this */}
-                {item.user_id === userId && (
-                    <IconButton
-                      aria-label="delete_post"
-                      onClick={() => deleteTopic.mutate(item.topic_id)}
-                    >
-                      <TrashIcon size={20} color="black" weight="bold" />
-                    </IconButton>
+                {userId !== null && item.user_id === userId && (
+                  <IconButton
+                    aria-label="delete_post"
+                    onClick={() => deleteTopic.mutate(item.topic_id)}
+                  >
+                    <TrashIcon size={20} color="black" weight="bold" />
+                  </IconButton>
                 )}
               </div>
             );
@@ -89,7 +95,7 @@ export function SideBar({ topicsList = [], userId, }: { topicsList?: Topic[], us
           width: "60px",
           height: "60px",
           "&:hover": {
-            backgroundColor: "#6AD5FF", 
+            backgroundColor: "#6AD5FF",
           },
         }}
       >

@@ -1,5 +1,5 @@
-import { Comments } from "~/components/comments";
-import { Post } from "../components/post";
+import { Comments } from "~/components/Comments";
+import { Post } from "../components/Post";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "~/hooks/useAuth";
 import { Button, TextField, Typography } from "@mui/material";
@@ -7,7 +7,7 @@ import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 import { useState, type FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
-import type { Route } from "./+types/postcomments.$id";
+import type { Route } from "./+types/PostCommentsScreen.$id";
 
 type Comment = {
   comment_id: number;
@@ -30,7 +30,7 @@ type PostsResponse = { payload?: { data?: PostItem[] } };
 //TODO chaneg this from cache to a new query
 export default function PostComments({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
-  const { user, isLoading: userLoading } = useAuth();
+  const { userId, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const postId = Number(params.id);
@@ -104,7 +104,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
           id={currPost.post_id}
           title={currPost.title}
           content={currPost.content}
-          isOwner={Number(currPost.user_id) === user?.payload?.data}
+          isOwner={Number(currPost.user_id) === userId}
           showChat={false}
         />
       )}
@@ -156,7 +156,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
             disableRipple
             sx={{ color: "black", borderColor: "black", borderRadius: 20 }}
             onClick={() => {
-              user ? setIsEditing(true) : alert("login to leave a comment");
+              userId ? setIsEditing(true) : alert("login to leave a comment");
             }}
           >
             <PlusIcon />
@@ -169,8 +169,8 @@ export default function PostComments({ params }: Route.ComponentProps) {
           key={comment.comment_id}
           username={comment.name}
           content={comment.content}
-          isOwner={Number(comment.user_id) === user?.payload?.data}
-          id={comment.comment_id}
+          isOwner={Number(comment.user_id) === userId}
+          commentId={comment.comment_id}
           postId={postId}
         />
       ))}

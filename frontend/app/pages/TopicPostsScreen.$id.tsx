@@ -1,4 +1,4 @@
-import { Post } from "../components/post";
+import { Post } from "../components/Post";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { Typography } from "@mui/material";
@@ -20,7 +20,7 @@ type TopicsResponse = {payload?: {data?: Topic[]}}
 export default function Posts() {
   const { id } = useParams();
 
-  const { user, isLoading: userLoading } = useAuth();
+  const { userId, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
     queryKey: [`posts`, id ?? "all"],
@@ -56,7 +56,7 @@ export default function Posts() {
             id={post.post_id}
             title={post.title}
             content={post.content}
-            isOwner={Number(post.user_id) === user?.payload?.data}
+            isOwner={Number(post.user_id) === userId}
             showChat={true}
           />
         ))

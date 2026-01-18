@@ -1,4 +1,4 @@
-import { SideBar } from "./sidebar";
+import { SideBar } from "./Sidebar";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircleIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { Link } from "react-router";
@@ -15,11 +15,13 @@ type TopicsResponse = { payload?: { data?: Topic[] } };
 export function Header() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user, isLoading: userLoading } = useAuth();
+  const { userId, isLoading: userLoading } = useAuth();
   const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
   const [addAnchorEl, setAddAnchorEl] = useState<HTMLElement | null>(null);
-  const getTopics = async (): Promise<TopicsResponse> =>
-    await axios.get("http://localhost:8000/topics");
+  const getTopics = async (): Promise<TopicsResponse> => {
+    const response = await axios.get("http://localhost:8000/topics");
+    return response.data;
+  };
 
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topics`],
@@ -57,11 +59,12 @@ export function Header() {
     },
     onError: () => alert("Failed to logout"),
   });
+  
   if (isLoading || userLoading) return <div>Loading...</div>;
   return (
     <div className="h-20 sticky top-0 z-50">
       <div className="h-20 bg-[#9BE3FF] ps-4 flex items-center gap-4">
-        <SideBar topicsList={data?.payload?.data} userId={user?.payload?.data || null}/>
+        <SideBar topicsList={data?.payload?.data} userId={userId} />
         <Link to="/">
           <Typography fontWeight={500} color="white" fontSize={46}>
             CVWO
@@ -69,7 +72,7 @@ export function Header() {
         </Link>
         <div className="w-full flex justify-end px-4">
           {/* TODO impmenet my post */}
-          {user ? (
+          {userId ? (
             <>
               <IconButton
                 aria-controls="add-dropdown"

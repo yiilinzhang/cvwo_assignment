@@ -2,7 +2,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
 import axios from "axios";
-import type { Route } from "./+types/editpost";
+import type { Route } from "./+types/EditPostScreen";
 import type { FormEvent } from "react";
 
 type PostItem = {

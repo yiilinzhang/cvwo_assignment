@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import Posts from "./posts.$id";
+import Posts from "./TopicPostsScreen.$id";
 
 export function meta({}: Route.MetaArgs) {
   return [
