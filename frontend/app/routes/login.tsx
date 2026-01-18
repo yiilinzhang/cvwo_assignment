@@ -2,11 +2,28 @@ import { Button, Typography, TextField } from "@mui/material";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
 import { type FormEvent } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-
+  //TODO update type from any
+  const login = useMutation({
+    mutationFn: async (body: any) => {
+      await axios.post("http://localhost:8000/login", body, {
+        withCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      alert("Successfully logged in.");
+      navigate("/");
+    },
+    onError: () => {
+      alert("Failed to login account.");
+    },
+  });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,28 +34,9 @@ export default function LoginPage() {
       username: formData.get("username"),
       password: formData.get("password"),
     };
-    
-    try {
-      const response = await fetch("http://localhost:8000/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const result = await response.json();
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to login account.");
-      return;
-    }
+    login.mutate(body);
+
     //TODO add code to save jwt
-    alert("Successfully logged in.");
-    navigate("/");
   };
   return (
     <form onSubmit={handleSubmit}>

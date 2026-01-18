@@ -1,8 +1,23 @@
 import { Button, Typography, TextField } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
 export default function SignUpPage() {
   const navigate = useNavigate();
+
+  //TODO update type
+  const signup = useMutation({
+    mutationFn: async (body: any) => {
+      await axios.post("http://localhost:8000/users", body)
+    },
+    onSuccess: () => {//TODO add code to save jwt
+    alert("Successfully created account.");
+    navigate("/");},
+    onError: () => {
+      alert("Failed to create account.");
+    }
+  }) 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -12,26 +27,8 @@ export default function SignUpPage() {
       username: formData.get("username"),
       password: formData.get("password"),
     };
-    try {
-      const response = await fetch("http://localhost:8000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const result = await response.json();
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to create account.");
-      return;
-    }
-    //TODO add code to save jwt
-    alert("Successfully created account.");
-    navigate("/");
+    signup.mutate(body);
+    
   };
   return (
     <form onSubmit={handleSubmit}>
