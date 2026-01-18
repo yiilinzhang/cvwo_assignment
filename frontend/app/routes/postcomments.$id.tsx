@@ -1,6 +1,6 @@
 import { Comments } from "~/components/comments";
 import { Post } from "../components/post";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "~/hooks/useAuth";
 import { Button, TextField, Typography } from "@mui/material";
 import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
@@ -33,18 +33,23 @@ export default function PostComments({ params }: Route.ComponentProps) {
   const { user, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const postId = params?.id;
+  const postId = Number(params.id);
+  if (!Number.isFinite(postId)) {
+    return <div>Invalid post id.</div>;
+  }
   //Fetch all comments for the particular post
   const { isLoading, data } = useQuery<CommentsResponse>({
     queryKey: [`comments`, params.id],
-    queryFn: async () => { 
-      const response = await axios.get( `http://localhost:8000/posts/${postId}/comments`)
+    queryFn: async () => {
+      const response = await axios.get(
+        `http://localhost:8000/posts/${postId}/comments`
+      );
       return await response.data;
     },
   });
   const cachedPosts = queryClient.getQueryData<PostsResponse>(["posts", "all"]);
-  const { isLoading: postLoading, data: postData } = useQuery({
-    queryKey: [`posts`, "all"],
+  const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
+    queryKey: [`posts`, postId],
     queryFn: async () => {
       const url = "http://localhost:8000/posts";
       const response = await axios.get(url);
@@ -54,29 +59,33 @@ export default function PostComments({ params }: Route.ComponentProps) {
     initialData: cachedPosts,
   });
 
-  const currPost = postData?.payload?.data?.find(
-    (p) => p.post_id === Number(postId)
-  );
+  const currPost = postData?.payload?.data?.find((p) => p.post_id === postId);
 
+  const createComment = useMutation({
+    mutationFn: async (body:{content : String}) =>
+      await axios.post(`http://localhost:8000/posts/${postId}/comments`, body, {
+        withCredentials: true,
+      }),
+    onSuccess: (body ) => {
+      alert("Successfully created comment.");
+      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: [`comments`, postId] });
+    },
+    onError:()=> {
+      alert("Failed to create comment.")
+    }
+  });
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const body = {
-      content: formData.get("comment"),
-    };
-
-    //TODO change to axios
-    axios
-      .post(`http://localhost:8000/posts/${postId}/comments`, body, {
-        withCredentials: true,
-      })
-      .then(() => {
-        alert("Successfully created comment.");
-        setIsEditing(false);
-        queryClient.invalidateQueries({ queryKey: [`comments`, params.id] });
-      });
+    const content = String(formData.get("comment") || "").trim();
+    if (!content) {
+      alert("Comment body cannot be empty");
+      return;
+    }
+    createComment.mutate({content})
   };
   return (
     <div className="flex flex-col gap-6 py-6 px-20">
@@ -88,7 +97,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
       >
         Back
       </Button>
-      {postLoading ? (
+      {postLoading || !currPost ? (
         <div></div>
       ) : (
         <Post
@@ -102,14 +111,8 @@ export default function PostComments({ params }: Route.ComponentProps) {
       <hr />
       {/* TODO check how i should pass in post prop requery or drill */}
       <div className="flex flex-row items-center gap-2">
-        {/* <Typography fontWeight={500} fontSize="1.5rem">
-        Comments
-      </Typography> */}
         {isEditing ? (
-          <form
-            onSubmit={handleSubmit}
-            className="w-full flex flex-col gap-2"
-          >
+          <form onSubmit={handleSubmit} className="w-full flex flex-col gap-2">
             <TextField
               fullWidth={true}
               multiline={true}

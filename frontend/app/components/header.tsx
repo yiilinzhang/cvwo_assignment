@@ -1,5 +1,5 @@
 import { SideBar } from "./sidebar";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircleIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
@@ -8,6 +8,9 @@ import { useAuth } from "../hooks/useAuth";
 import { useState, type MouseEvent } from "react";
 import axios from "axios";
 
+type Topic = {topic_id: number; title: string}
+type TopicsResponse = {payload?: {data?: Topic[]}}
+
 //Header component for all pages
 export function Header() {
   const navigate = useNavigate();
@@ -15,40 +18,44 @@ export function Header() {
   const { user, isLoading: userLoading } = useAuth();
   const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
   const [addAnchorEl, setAddAnchorEl] = useState<HTMLElement | null>(null);
-  const getTopics = async () => await axios.get("http://localhost:8000/topics")
+  const getTopics = async ():Promise<TopicsResponse> => await axios.get("http://localhost:8000/topics")
 
-  const { isLoading, data } = useQuery({
+  const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topics`],
     queryFn: getTopics,
   });
+
   if (isLoading || userLoading) return <div>Loading...</div>;
   const handleUserClick = (event: MouseEvent<HTMLElement>) => {
     setUserAnchorEl(event.currentTarget);
   };
+
   const handleUserClose = () => {
     setUserAnchorEl(null);
   };
+
   const handleAddClick = (event: MouseEvent<HTMLElement>) => {
     setAddAnchorEl(event.currentTarget);
   };
+
   const handleAddClose = () => {
     setAddAnchorEl(null);
   };
 
-  const logout = () => {
-    axios
-      .post("http://localhost:8000/logout", {}, { withCredentials: true })
-      .then(() => {
+  const logout = useMutation({
+    mutationFn: async () => await axios.post("http://localhost:8000/logout", {}, { withCredentials: true }),
+    onSuccess:()=>{() => {
         queryClient.invalidateQueries({ queryKey: ["me"] });
         alert("Successfully logged out.");
         handleUserClose();
-        navigate("/");
-      });
-  };
+        navigate("/");}},
+      onError: () => alert("Failed to logout")
+  })
+
   return (
     <div className="h-20 sticky top-0 z-50">
       <div className="h-20 bg-[#9BE3FF] ps-4 flex items-center gap-4">
-        <SideBar topicsList={data?.payload.data} />
+        <SideBar topicsList={data?.payload?.data} />
         <Link to="/">
           <Typography fontWeight={500} color="white" fontSize={46}>
             CVWO
@@ -97,7 +104,7 @@ export function Header() {
                 open={Boolean(userAnchorEl)}
                 onClose={handleUserClose}
               >
-                <MenuItem onClick={logout}>Logout</MenuItem>
+                <MenuItem onClick={() => logout.mutate()}>Logout</MenuItem>
                 <MenuItem>My Posts</MenuItem>
               </Menu>
             </>

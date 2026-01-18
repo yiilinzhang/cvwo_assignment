@@ -30,9 +30,15 @@ export default function LoginPage() {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const username = String(formData.get("username") || "").trim()
+    const password = String(formData.get("password") || "").trim()
+    if (!username || !password) {
+      alert("Username and password cannot be empty");
+      return;
+    }
     const body = {
-      username: formData.get("username"),
-      password: formData.get("password"),
+      username: username,
+      password: password,
     };
     login.mutate(body);
 

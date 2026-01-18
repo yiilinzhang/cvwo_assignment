@@ -5,6 +5,12 @@ import axios from "axios";
 type Topic = { topic_id: number; title: string };
 type TopicsResponse = { payload?: { data?: Topic[] } };
 
+type CreatePostBody = {
+  title: string;
+  content: string;
+  topic_id: number;
+}
+
 //Add post page
 export default function AddPosts() {
   //TODO use this isloading
@@ -18,7 +24,7 @@ export default function AddPosts() {
   const navigate = useNavigate();
 
   const createPost = useMutation({
-    mutationFn: async (body) => await axios.post("http://localhost:8000/posts", body, {
+    mutationFn: async (body: CreatePostBody) => await axios.post("http://localhost:8000/posts", body, {
         withCredentials: true,
   }),
   onSuccess:() => {alert("Successfully created post.");
@@ -37,16 +43,13 @@ export default function AddPosts() {
     const form = e.currentTarget;
     const formData = new FormData(form);
     const title = String(formData.get("title") || "").trim();
-    if (!title) return;
     const content = String(formData.get("content") || "").trim();
-    if (!content) return;
     const topicId = Number(formData.get("topic_id"));
-    if (!Number.isFinite(topicId)) {
-    }
-    const body = {
-      title: formData.get("title"),
-      content: formData.get("content"),
-      topic_id: Number(formData.get("topic_id")),
+     if (!content || !title || !Number.isFinite(topicId)) return;
+    const body : CreatePostBody = {
+      title: title,
+      content: content,
+      topic_id: topicId,
     };
     createPost.mutate(body);
   };
