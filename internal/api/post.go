@@ -17,3 +17,11 @@ type UpdatePostInput struct {
 	Content string `json:"content"`;
 	UserId int `json:"user_id"`;	 
 }
+
+type QueryPostResponse struct {
+	ID      int    `json:"post_id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	UserId  string `json:"user_id"`
+	TopicTitle string `json:"topic_title" `
+}

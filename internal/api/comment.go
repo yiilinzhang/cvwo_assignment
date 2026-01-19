@@ -16,3 +16,10 @@ type UpdateCommentInput struct {
 	Content string `json:"content"`;
 	UserId int `json:"user_id"`;	 
 }
+
+type QueryCommentResponse struct {
+	ID       int    `json:"comment_id"`
+	Content  string `json:"content"`
+	UserName string `json:"name"`
+	UserId   int    `json:"user_id"`
+}

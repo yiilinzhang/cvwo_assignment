@@ -9,7 +9,7 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]models.QueryPostResponse, error) {
+func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]api.QueryPostResponse, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT post.post_id, post.title, post.content, post.user_id, topic.title
 		FROM post 
@@ -22,10 +22,10 @@ func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]models.QueryPostRespons
 	}
 
 	defer rows.Close()
-	post := []models.QueryPostResponse{}
+	post := []api.QueryPostResponse{}
 
 	for rows.Next() {
-		var p models.QueryPostResponse
+		var p api.QueryPostResponse
 		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicTitle)
 		if err != nil {
 			return nil, err
@@ -45,7 +45,7 @@ func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 
 	defer rows.Close()
 	post := []models.Post{}
-	
+
 	for rows.Next() {
 		var p models.Post
 		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicId)

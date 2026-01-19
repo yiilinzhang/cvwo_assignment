@@ -25,7 +25,7 @@ func DeleteComment(conn *pgxpool.Pool, delCommentObj api.DeleteCommentInput) ([]
 }
 
 //What i want returned, user.username, post.content, post.title, comment.content
-func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]models.QueryCommentResponse, error) {
+func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]api.QueryCommentResponse, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT comment.comment_id, comment.content, comment.user_id, users.name
 		FROM comment 
@@ -38,10 +38,10 @@ func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]models.QueryCommentRes
 	}
 
 	defer rows.Close()
-	comment := []models.QueryCommentResponse{}
+	comment := []api.QueryCommentResponse{}
 
 	for rows.Next() {
-		var c models.QueryCommentResponse
+		var c api.QueryCommentResponse
 		err := rows.Scan(&c.ID, &c.Content, &c.UserId, &c.UserName)
 		if err != nil {
 			return nil, err
@@ -62,7 +62,7 @@ func InsertComment(conn *pgxpool.Pool, newCommentObj api.CreateCommentInput) ([]
 
 //What i want returned, user.username, post.content, post.title, comment.content
 
-func ListCommentById(conn *pgxpool.Pool, commentId int) ([]models.QueryCommentResponse, error) {
+func ListCommentById(conn *pgxpool.Pool, commentId int) ([]api.QueryCommentResponse, error) {
 	//TODO change to conn.exec cus one row only and update storage models
 	rows, err := conn.Query(context.Background(),
 		`SELECT content, user_id
@@ -74,10 +74,10 @@ func ListCommentById(conn *pgxpool.Pool, commentId int) ([]models.QueryCommentRe
 	}
 
 	defer rows.Close()
-	comment := []models.QueryCommentResponse{}
+	comment := []api.QueryCommentResponse{}
 
 	for rows.Next() {
-		var c models.QueryCommentResponse
+		var c api.QueryCommentResponse
 		err := rows.Scan(&c.Content, &c.UserId)
 		if err != nil {
 			return nil, err
