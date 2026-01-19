@@ -1,4 +1,4 @@
-package api
+package comments
 
 type CreateCommentInput struct {
 	Content string `json:"content"`

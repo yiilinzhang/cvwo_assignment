@@ -10,7 +10,7 @@ import (
 )
 
 // Helper func used to retreive userID from contect, return id and error
-func userIDFromContext(r *http.Request) (int, error) {
+func UserIDFromContext(r *http.Request) (int, error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		return 0, api.Unauthorized(errors.New("Invalid token"))
@@ -30,7 +30,7 @@ func userIDFromContext(r *http.Request) (int, error) {
 }
 
 //Abtract out error catching in json body decoding. Used to replace json.NewDecoder.Decode + err logic
-func decodeJSON(r *http.Request, destination any) error {
+func DecodeJSON(r *http.Request, destination any) error {
 	if err := json.NewDecoder(r.Body).Decode(destination); err != nil {
 		return api.BadRequest(errors.New("JSON body is invalid"))
 	}

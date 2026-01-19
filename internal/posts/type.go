@@ -1,4 +1,4 @@
-package api
+package posts
 
 type CreatePostInput struct {
 	TopicId int `json:"topic_id"`;

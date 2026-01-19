@@ -8,9 +8,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
-	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
+	"github.com/yiilinzhang/cvwo_assignment/internal/posts"
+	"github.com/yiilinzhang/cvwo_assignment/internal/topics"
+	"github.com/yiilinzhang/cvwo_assignment/internal/users"
+	"github.com/yiilinzhang/cvwo_assignment/internal/comments"
 )
 
 type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
@@ -22,22 +26,22 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.TokenAuth))
 			r.Use(jwtauth.Authenticator(auth.TokenAuth))
 
-			r.Get("/me", Routing(conn, handlers.HandleMe))
+			r.Get("/me", Routing(conn, users.HandleMe))
 			//TODO combine with queryparams
-			r.Get("/users", Routing(conn, handlers.HandleListUsers))
-			r.Post("/logout", Routing(conn, handlers.HandleLogout))
+			r.Get("/users", Routing(conn, users.HandleListUsers))
+			r.Post("/logout", Routing(conn, users.HandleLogout))
 
-			r.Post("/posts", Routing(conn, handlers.HandleInsertPosts))
-			r.Delete("/posts/{postId}", Routing(conn, handlers.HandleDeletePosts))
-			r.Patch("/posts/{postId}", Routing(conn, handlers.HandleEditPosts))
-			r.Post("/posts/{postId}/comments", Routing(conn, handlers.HandleInsertComments))
+			r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
+			r.Delete("/posts/{postId}", Routing(conn, posts.HandleDeletePosts))
+			r.Patch("/posts/{postId}", Routing(conn, posts.HandleEditPosts))
+			r.Post("/posts/{postId}/comments", Routing(conn, comments.HandleInsertComments))
 
-			r.Post("/topics", Routing(conn, handlers.HandleInsertTopics))
-			r.Delete("/topics/{topicId}", Routing(conn, handlers.HandleDeleteTopics))
+			r.Post("/topics", Routing(conn, topics.HandleInsertTopics))
+			r.Delete("/topics/{topicId}", Routing(conn, topics.HandleDeleteTopics))
 
-			r.Get("/comments/{commentId}", Routing(conn, handlers.HandleCommentById))
-			r.Delete("/comments/{commentId}", Routing(conn, handlers.HandleDeleteComments))
-			r.Patch("/comments/{commentId}", Routing(conn, handlers.HandleEditComments))
+			r.Get("/comments/{commentId}", Routing(conn, comments.HandleCommentById))
+			r.Delete("/comments/{commentId}", Routing(conn, comments.HandleDeleteComments))
+			r.Patch("/comments/{commentId}", Routing(conn, comments.HandleEditComments))
 
 		})
 	}
@@ -48,12 +52,12 @@ func PublicRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 		//Public routes routes
 		r.Group(func(r chi.Router) {
 			//
-			r.Post("/login", Routing(conn, handlers.HandleLoginAuth))
-			r.Post("/users", Routing(conn, handlers.HandleAddUsers))
-			r.Get("/posts/{topicId}", Routing(conn, handlers.HandleListByTopic))
-			r.Get("/posts/{postId}/comments", Routing(conn, handlers.HandleListByPosts))
-			r.Get("/posts", Routing(conn, handlers.HandleListAllPosts))
-			r.Get("/topics", Routing(conn, handlers.HandleListTopics))
+			r.Post("/login", Routing(conn, users.HandleLoginAuth))
+			r.Post("/users", Routing(conn, users.HandleAddUsers))
+			r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
+			r.Get("/posts/{postId}/comments", Routing(conn, comments.HandleListByPosts))
+			r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
+			r.Get("/topics", Routing(conn, topics.HandleListTopics))
 		})
 	}
 }

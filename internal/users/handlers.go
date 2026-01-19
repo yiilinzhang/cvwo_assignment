@@ -1,4 +1,4 @@
-package handlers
+package users
 
 import (
 	"encoding/json"
@@ -9,12 +9,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
-	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
+	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 	"golang.org/x/crypto/bcrypt"
 )
 
 const (
-	ListUsers                  = "users.HandleList"
+	ListUsers                  = "HandleList"
 	SuccessfulListUsersMessage = "Successfully listed users"
 	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
 	ErrRetrieveUsers           = "Failed to retrieve users in %s"
@@ -22,7 +22,7 @@ const (
 )
 
 func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	userList, err := dataaccess.ListUser(conn)
+	userList, err := ListUser(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
 	}
@@ -41,8 +41,8 @@ func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 }
 
 func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	var input api.CreateUserInput
-	if err := decodeJSON(r, &input); err != nil {
+	var input CreateUserInput
+	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 	input.Password = ""
 	s := string(hashBytes)
 
-	err = dataaccess.InsertUser(conn, input.Username, s)
+	err = InsertUser(conn, input.Username, s)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
 	}
@@ -61,12 +61,12 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 
 // return nil if password matches
 func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	var loginCred api.CreateUserInput
-	if err := decodeJSON(r, &loginCred); err != nil {
+	var loginCred CreateUserInput
+	if err := handlers.DecodeJSON(r, &loginCred); err != nil {
 		return nil, api.BadRequest(errors.New("Invalid login cred"))
 	}
 
-	userID, savedPass, err := dataaccess.FetchUser(conn, loginCred.Username)
+	userID, savedPass, err := FetchUser(conn, loginCred.Username)
 	//TODO change this err message
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
@@ -134,12 +134,12 @@ func HandleLogout(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*
 //Used to check if the user is loggedin based on cookie
 
 func HandleMe(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 	//TODO depreciated
-	// userid, err := dataaccess.FetchUserName(conn, userID)
+	// userid, err := FetchUserName(conn, userID)
 	// if err != nil {
 	// 	return nil, errors.New("Title later")
 	// }

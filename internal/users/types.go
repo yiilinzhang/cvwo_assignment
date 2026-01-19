@@ -1,4 +1,4 @@
-package api
+package users
 
 type CreateUserInput struct {
 	Username string `json:"username"`;

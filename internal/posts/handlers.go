@@ -1,4 +1,4 @@
-package handlers
+package posts
 
 import (
 	"encoding/json"
@@ -10,13 +10,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
-	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
+	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 )
 
 const (
 	ListPosts                  = "posts.HandleList"
 	SuccessfulListPostsMessage = "Successfully listed posts"
 	ErrRetrievePosts           = "Failed to retrieve posts in %s"
+	ErrEncodeView              = "Failed to retrieve posts in %s"
 )
 
 func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
@@ -26,7 +27,7 @@ func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 		return nil, api.BadRequest(errors.New("Invalid post id"))
 	}
 
-	postList, err := dataaccess.ListPostByTopic(conn, topicId)
+	postList, err := ListPostByTopic(conn, topicId)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
@@ -51,19 +52,19 @@ func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 		return nil, api.BadRequest(errors.New("Invalid post id"))
 	}
 
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 	//TODO add err catching
 
 	//Extract JSON from HTTP req
-	var input api.DeletePostInput
+	var input DeletePostInput
 	input.PostId = postId
 	input.UserId = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = dataaccess.DeletePost(conn, input)
+	_, err = DeletePost(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
@@ -79,18 +80,18 @@ func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 		return nil, api.BadRequest(errors.New("Invalid post id"))
 	}
 
-	var input api.UpdatePostInput
-	if err := decodeJSON(r, &input); err != nil {
+	var input UpdatePostInput
+	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 
 	input.PostId = postId
 	input.UserId = userID
-	_, err = dataaccess.UpdatePost(conn, input)
+	_, err = UpdatePost(conn, input)
 	return &api.Response{
 		Payload:  api.Payload{},
 		Messages: []string{SuccessfulListPostsMessage},
@@ -100,19 +101,19 @@ func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 
 // Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var input api.CreatePostInput
-	if err := decodeJSON(r, &input); err != nil {
+	var input CreatePostInput
+	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
 	input.UserId = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newPost, err := dataaccess.InsertPost(conn, input)
+	newPost, err := InsertPost(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
@@ -132,7 +133,7 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 }
 
 func HandleListAllPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	postList, err := dataaccess.ListAllPost(conn)
+	postList, err := ListAllPost(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}

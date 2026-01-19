@@ -1,11 +1,10 @@
-package dataaccess
+package topics
 
 import (
 	"context"
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
@@ -34,7 +33,7 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 // SQL query that deletes the post with the same post id & user id from the database
 // TODO after auth pass in user id too
 // TODO change the []model.post return type to just return error or smth more accurate
-func DeleteTopic(conn *pgxpool.Pool, delTopicObj api.DeleteTopicInput) ([]models.Post, error) {
+func DeleteTopic(conn *pgxpool.Pool, delTopicObj DeleteTopicInput) ([]models.Post, error) {
 	commandTag, err := conn.Exec(context.Background(),
 		`DELETE FROM topic WHERE topic_id = $1 AND user_id = $2`, delTopicObj.TopicId, delTopicObj.UserId)
 	if err != nil {
@@ -48,7 +47,7 @@ func DeleteTopic(conn *pgxpool.Pool, delTopicObj api.DeleteTopicInput) ([]models
 
 // TODO after auth pass in user id too
 // TODO change the []model.post return type to just return error or smth more accurate
-func InsertTopic(conn *pgxpool.Pool, newTopicObj api.CreateTopicInput) ([]models.Post, error) {
+func InsertTopic(conn *pgxpool.Pool, newTopicObj CreateTopicInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`INSERT INTO topic (title, user_id)
 		VALUES ($1, $2)`, newTopicObj.Title, newTopicObj.UserId)

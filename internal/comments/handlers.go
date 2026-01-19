@@ -1,4 +1,4 @@
-package handlers
+package comments
 
 import (
 	"encoding/json"
@@ -10,13 +10,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
-	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
+	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 )
 
 const (
 	ListComments                  = "comments.HandleListByPosts"
 	SuccessfulListCommentsMessage = "Successfully listed comments"
 	ErrRetrieveComments           = "Failed to retrieve comments in %s"
+	ErrEncodeView              = "Failed to retrieve comment in %s"
 )
 
 func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
@@ -25,7 +26,7 @@ func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 		return nil, api.BadRequest(errors.New("Invalid post id"))
 	}
 
-	postList, err := dataaccess.ListCommentByPost(conn, postId)
+	postList, err := ListCommentByPost(conn, postId)
 
 	data, err := json.Marshal(postList)
 	if err != nil {
@@ -40,16 +41,15 @@ func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}, nil
 }
 
-
 func HandleCommentById(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
 	if err != nil {
 		return nil, api.BadRequest(errors.New("Invalid comment id"))
 	}
 
-	comment, err := dataaccess.ListCommentById(conn, commentId)
+	comment, err := ListCommentById(conn, commentId)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveComments, ListComments))
 	}
 
 	data, err := json.Marshal(comment)
@@ -65,7 +65,6 @@ func HandleCommentById(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}, nil
 }
 
-
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeleteComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
@@ -73,43 +72,42 @@ func HandleDeleteComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Req
 		return nil, api.BadRequest(errors.New("Invalid comment id"))
 	}
 
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var input api.DeleteCommentInput
+	var input DeleteCommentInput
 	input.CommentId = commentId
 	input.UserId = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = dataaccess.DeleteComment(conn, input)
+	_, err = DeleteComment(conn, input)
 	if err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
-
-//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
+// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
 	if err != nil {
 		return nil, api.BadRequest(errors.New("Invalid comment id"))
 	}
 
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var input api.UpdateCommentInput
-	if err := decodeJSON(r, &input); err != nil {
+	var input UpdateCommentInput
+	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
 	input.CommentId = commentId
 	input.UserId = userID
-	_, err = dataaccess.UpdateComment(conn, input)
+	_, err = UpdateComment(conn, input)
 
 	return &api.Response{
 		Payload:  api.Payload{},
@@ -118,30 +116,29 @@ func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 
 }
 
-
-//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
+// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleInsertComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	PostId, err := strconv.Atoi(chi.URLParam(r, "postId"))
 	if err != nil {
 		return nil, api.BadRequest(errors.New("Invalid post id"))
 	}
 
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var input api.CreateCommentInput
-	if err := decodeJSON(r, &input); err != nil {
+	var input CreateCommentInput
+	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
 	input.UserId = userID
 	input.PostId = PostId
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newComment, err := dataaccess.InsertComment(conn, input)
+	newComment, err := InsertComment(conn, input)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveComments, ListComments))
 	}
 
 	//TODO check if more efficient to not unmardshell

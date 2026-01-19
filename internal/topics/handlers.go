@@ -1,4 +1,4 @@
-package handlers
+package topics
 
 import (
 	"encoding/json"
@@ -10,17 +10,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
-	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
+	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 )
 
 const (
 	ListTopics                  = "topics.HandleList"
 	SuccessfulListTopicsMessage = "Successfully listed topics"
 	ErrRetrieveTopics           = "Failed to retrieve topics in %s"
+	ErrEncodeView              = "Failed to retrieve topics in %s"
 )
 
 func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	topicList, err := dataaccess.ListTopic(conn)
+	topicList, err := ListTopic(conn)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
 	}
@@ -45,17 +46,17 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 		return nil, api.BadRequest(errors.New("Invalid topic id"))
 	}
 
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var input api.DeleteTopicInput
+	var input DeleteTopicInput
 	input.TopicId = topicId
 	input.UserId = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = dataaccess.DeleteTopic(conn, input)
+	_, err = DeleteTopic(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
 	}
@@ -65,19 +66,19 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 
 //Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	userID, err := userIDFromContext(r)
+	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 	
-	var input api.CreateTopicInput
+	var input CreateTopicInput
 	input.UserId = userID
-	if err := decodeJSON(r, &input); err != nil {
+	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newTopic, err := dataaccess.InsertTopic(conn, input)
+	newTopic, err := InsertTopic(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
 	}

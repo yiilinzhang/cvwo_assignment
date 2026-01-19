@@ -1,15 +1,14 @@
-package dataaccess
+package posts
 
 import (
 	"context"
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]api.QueryPostResponse, error) {
+func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]QueryPostResponse, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT post.post_id, post.title, post.content, post.user_id, topic.title
 		FROM post 
@@ -22,10 +21,10 @@ func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]api.QueryPostResponse, 
 	}
 
 	defer rows.Close()
-	post := []api.QueryPostResponse{}
+	post := []QueryPostResponse{}
 
 	for rows.Next() {
-		var p api.QueryPostResponse
+		var p QueryPostResponse
 		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicTitle)
 		if err != nil {
 			return nil, err
@@ -60,7 +59,7 @@ func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 // SQL query that deletes the post with the same post id & user id from the database
 // TODO after auth pass in user id too
 // TODO change the []model.post return type to just return error or smth more accurate
-func DeletePost(conn *pgxpool.Pool, delPostObj api.DeletePostInput) ([]models.Post, error) {
+func DeletePost(conn *pgxpool.Pool, delPostObj DeletePostInput) ([]models.Post, error) {
 	commandTag, err := conn.Exec(context.Background(),
 		`DELETE FROM post WHERE post_id = $1 AND user_id = $2`, delPostObj.PostId, delPostObj.UserId)
 	if err != nil {
@@ -74,14 +73,14 @@ func DeletePost(conn *pgxpool.Pool, delPostObj api.DeletePostInput) ([]models.Po
 
 // TODO after auth pass in user id too
 // TODO change the []model.post return type to just return error or smth more accurate
-func InsertPost(conn *pgxpool.Pool, newPostObj api.CreatePostInput) ([]models.Post, error) {
+func InsertPost(conn *pgxpool.Pool, newPostObj CreatePostInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`INSERT INTO post (title, content, user_id, topic_id)
 		VALUES ($1, $2, $3, $4)`, newPostObj.Title, newPostObj.Content, newPostObj.UserId, newPostObj.TopicId)
 	return nil, err
 }
 
-func UpdatePost(conn *pgxpool.Pool, PostObj api.UpdatePostInput) ([]models.Post, error) {
+func UpdatePost(conn *pgxpool.Pool, PostObj UpdatePostInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`UPDATE post SET content = $1 WHERE post_id = $2 AND user_id = $3`,
 		PostObj.Content, PostObj.PostId, PostObj.UserId)

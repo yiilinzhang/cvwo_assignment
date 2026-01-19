@@ -1,4 +1,5 @@
-package api
+package topics
+
 type CreateTopicInput struct {
 	Title string `json:"title"`;
 	UserId int `json:"user_id"`;	
