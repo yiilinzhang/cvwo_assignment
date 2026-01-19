@@ -137,11 +137,8 @@ func HandleLogout (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (
 //Used to check if the user is loggedin based on cookie
 
 func HandleMe (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
-	 _, claims, err := jwtauth.FromContext(r.Context())
-	userID := int(claims["user_id"].(float64))
-	if err != nil {
-		return nil, errors.New("Title later")
-	}
+	userID, err := userIDFromContext(r)
+if err != nil { return nil, err }
 	//TODO depreciated
 	// userid, err := dataaccess.FetchUserName(conn, userID)
 	// if err != nil {

@@ -39,26 +39,22 @@ func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 	}, nil
 }
 
-
-//Delete a specific post from database, requires postid to be passed in via url
+// Delete a specific post from database, requires postid to be passed in via url
 func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	topicId := chi.URLParam(r, "topicId")
-	_, claims, err := jwtauth.FromContext(r.Context())
-	userID := int(claims["user_id"].(float64))
-	//TODO add err catching
+	userID, err := userIDFromContext(r)
+if err != nil { return nil, err }
 
 	//Extract JSON from HTTP req
-	var topicJSON api.DeleteTopicInput 
+	var topicJSON api.DeleteTopicInput
 	topicJSON.TopicId = topicId
 	topicJSON.UserId = userID
-
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	_, err = dataaccess.DeleteTopic(conn, topicJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
 	}
-
 
 	return nil, nil
 }
@@ -69,13 +65,13 @@ func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 	//Extract JSON from HTTP req
 	var topicJSON api.CreateTopicInput
 	json.NewDecoder(r.Body).Decode(&topicJSON)
-	_, claims, err := jwtauth.FromContext(r.Context())
-	topicJSON.UserId = int(claims["user_id"].(float64))
+	userID, err := userIDFromContext(r)
 	if err != nil {
-		return nil, errors.New("Title later")
+		return nil, err
 	}
-	//Validate input
+	topicJSON.UserId = userID
 
+	//Validate input
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	newTopic, err := dataaccess.InsertTopic(conn, topicJSON)

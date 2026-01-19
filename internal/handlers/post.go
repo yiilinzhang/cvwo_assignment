@@ -14,9 +14,8 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/dataaccess"
 )
 
-
 const (
-	ListPosts = "posts.HandleList"
+	ListPosts                  = "posts.HandleList"
 	SuccessfulListPostsMessage = "Successfully listed posts"
 	ErrRetrievePosts           = "Failed to retrieve posts in %s"
 )
@@ -42,26 +41,25 @@ func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}, nil
 }
 
-
-//Delete a specific post from database, requires postid to be passed in via url
+// Delete a specific post from database, requires postid to be passed in via url
 func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
-	_, claims, err := jwtauth.FromContext(r.Context())
-	userID := int(claims["user_id"].(float64))
+	userID, err := userIDFromContext(r)
+	if err != nil {
+		return nil, err
+	}
 	//TODO add err catching
 
 	//Extract JSON from HTTP req
-	var postJSON api.DeletePostInput 
+	var postJSON api.DeletePostInput
 	postJSON.PostId = postId
 	postJSON.UserId = userID
-
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	_, err = dataaccess.DeletePost(conn, postJSON)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
-
 
 	return nil, nil
 }
@@ -71,21 +69,19 @@ func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
 	var postJSON api.UpdatePostInput
-	json.NewDecoder(r.Body).Decode(&postJSON); 
-	_, claims, err := jwtauth.FromContext(r.Context())
+	json.NewDecoder(r.Body).Decode(&postJSON)
+	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
-	postJSON.PostId = postId;
-	postJSON.UserId = int(claims["user_id"].(float64))
-	_, err = dataaccess.UpdatePost(conn, postJSON);
+	postJSON.PostId = postId
+	postJSON.UserId = userID
+	_, err = dataaccess.UpdatePost(conn, postJSON)
 	return &api.Response{
-		Payload: api.Payload{
-		},
+		Payload:  api.Payload{},
 		Messages: []string{SuccessfulListPostsMessage},
 	}, nil
 
-	
 }
 
 //Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
@@ -94,13 +90,10 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	//Extract JSON from HTTP req
 	var postJSON api.CreatePostInput
 	json.NewDecoder(r.Body).Decode(&postJSON)
-	_, claims, err := jwtauth.FromContext(r.Context())
-	postJSON.UserId = int(claims["user_id"].(float64))
-	if err != nil {
-		return nil, errors.New("Title later")
-	}
+	userID, err := userIDFromContext(r)
+if err != nil { return nil, err }
+	postJSON.UserId = userID
 	//Validate input
-
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	newPost, err := dataaccess.InsertPost(conn, postJSON)

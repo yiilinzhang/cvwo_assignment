@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -10,7 +11,6 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
-
 )
 
 type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
@@ -21,7 +21,7 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.TokenAuth))
 			r.Use(jwtauth.Authenticator(auth.TokenAuth))
-			
+
 			r.Get("/me", Routing(conn, handlers.HandleMe))
 			//TODO combine with queryparams
 			r.Get("/users", Routing(conn, handlers.HandleListUsers))
@@ -31,14 +31,14 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			r.Delete("/posts/{postId}", Routing(conn, handlers.HandleDeletePosts))
 			r.Patch("/posts/{postId}", Routing(conn, handlers.HandleEditPosts))
 			r.Post("/posts/{postId}/comments", Routing(conn, handlers.HandleInsertComments))
-			
+
 			r.Post("/topics", Routing(conn, handlers.HandleInsertTopics))
 			r.Delete("/topics/{topicId}", Routing(conn, handlers.HandleDeleteTopics))
-			
+
 			r.Get("/comments/{commentId}", Routing(conn, handlers.HandleCommentById))
 			r.Delete("/comments/{commentId}", Routing(conn, handlers.HandleDeleteComments))
 			r.Patch("/comments/{commentId}", Routing(conn, handlers.HandleEditComments))
-			
+
 		})
 	}
 }
@@ -63,6 +63,11 @@ func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		response, err := HandleList(conn, w, req)
 		if err != nil {
+			var httpErr api.HTTPError
+			if errors.As(err, &httpErr) {
+				http.Error(w, httpErr.Error(), httpErr.Status)
+				return
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -70,32 +75,3 @@ func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
 		json.NewEncoder(w).Encode(response)
 	}
 }
-
-// return func(r chi.Router) {
-// 	r.Group(func(r chi.Router) {
-// 	// Seek, verify and validate JWT tokens
-// 	r.Use(jwtauth.Verifier(auth.TokenAuth))
-
-// 	// Handle valid / invalid tokens. In this example, we use
-// 	// the provided authenticator middleware, but you can write your
-// 	// own very easily, look at the Authenticator method in jwtauth.go
-// 	// and tweak it, its not scary.
-// 	r.Use(jwtauth.Authenticator(auth.TokenAuth))
-
-// 	r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-// 		_, claims, _ := jwtauth.FromContext(r.Context())
-// 		w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
-// 	})
-
-// 	r.Get("/users", Routing(conn, users.HandleList))
-// 	r.Get("/topics", Routing(conn, topics.HandleList))
-
-// 	//TODO combine with queryparams
-// 	r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
-// 	r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
-
-// 	r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
-
-// })
-
-// }
