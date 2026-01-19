@@ -6,31 +6,30 @@ import (
 	"log"
 	"net/http"
 	"os"
-	
 
-	"github.com/joho/godotenv"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/yiilinzhang/cvwo_assignment/internal/router"
 )
 
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-    log.Fatal("Error loading .env file")
-  }
+		log.Fatalln("Error loading .env file")
+	}
 	//TODO stop using temp database url implmeent .env
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
 		log.Fatalln("DATABASE_URL is empty")
 	}
 
-	pool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	pool, err := pgxpool.New(context.Background(), databaseURL)
 	if err != nil {
-		log.Fatalln("Pool connection failed: %v", err)
+		log.Fatalf("Pool connection failed: %v", err)
 	}
-	r := router.Setup(pool)
 	defer pool.Close()
+	r := router.Setup(pool)
 
-	fmt.Print("Listening on port 8000 at http://localhost:8000!")
+	fmt.Println("Listening on port 8000 at http://localhost:8000!")
 	log.Fatalln(http.ListenAndServe(":8000", r))
 }
