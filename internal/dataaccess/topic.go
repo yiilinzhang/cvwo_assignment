@@ -16,8 +16,10 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	defer rows.Close()
 	topic := []models.Topic{}
+	
 	for rows.Next() {
 		var t models.Topic
 		err := rows.Scan(&t.UserId, &t.ID, &t.Title)

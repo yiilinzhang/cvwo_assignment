@@ -20,8 +20,10 @@ func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]models.QueryPostRespons
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	post := []models.QueryPostResponse{}
+
 	for rows.Next() {
 		var p models.QueryPostResponse
 		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicTitle)
@@ -40,8 +42,10 @@ func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	post := []models.Post{}
+	
 	for rows.Next() {
 		var p models.Post
 		err := rows.Scan(&p.ID, &p.Title, &p.Content, &p.UserId, &p.TopicId)

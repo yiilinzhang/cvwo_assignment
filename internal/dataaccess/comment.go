@@ -25,9 +25,7 @@ func DeleteComment(conn *pgxpool.Pool, delCommentObj api.DeleteCommentInput) ([]
 }
 
 //What i want returned, user.username, post.content, post.title, comment.content
-
 func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]models.QueryCommentResponse, error) {
-
 	rows, err := conn.Query(context.Background(),
 		`SELECT comment.comment_id, comment.content, comment.user_id, users.name
 		FROM comment 
@@ -38,8 +36,10 @@ func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]models.QueryCommentRes
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	comment := []models.QueryCommentResponse{}
+
 	for rows.Next() {
 		var c models.QueryCommentResponse
 		err := rows.Scan(&c.ID, &c.Content, &c.UserId, &c.UserName)
@@ -64,7 +64,6 @@ func InsertComment(conn *pgxpool.Pool, newCommentObj api.CreateCommentInput) ([]
 
 func ListCommentById(conn *pgxpool.Pool, commentId int) ([]models.QueryCommentResponse, error) {
 	//TODO change to conn.exec cus one row only and update storage models
-
 	rows, err := conn.Query(context.Background(),
 		`SELECT content, user_id
 		FROM comment 
@@ -73,8 +72,10 @@ func ListCommentById(conn *pgxpool.Pool, commentId int) ([]models.QueryCommentRe
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	comment := []models.QueryCommentResponse{}
+
 	for rows.Next() {
 		var c models.QueryCommentResponse
 		err := rows.Scan(&c.Content, &c.UserId)
@@ -92,5 +93,3 @@ func UpdateComment(conn *pgxpool.Pool, CommentObj api.UpdateCommentInput) ([]mod
 		CommentObj.Content, CommentObj.CommentId, CommentObj.UserId)
 	return nil, err
 }
-
-//TODO add better error catching
