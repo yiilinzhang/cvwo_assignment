@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
@@ -22,11 +21,12 @@ const (
 )
 
 func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	postId := chi.URLParam(r, "postId")
-	postList, err := dataaccess.ListCommentByPost(conn, postId)
+	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
+		return nil, api.BadRequest(errors.New("Invalid post id"))
 	}
+
+	postList, err := dataaccess.ListCommentByPost(conn, postId)
 
 	data, err := json.Marshal(postList)
 	if err != nil {
@@ -41,7 +41,11 @@ func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}, nil
 }
 func HandleCommentById(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	commentId := chi.URLParam(r, "commentId")
+	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid comment id"))
+	}
+
 	comment, err := dataaccess.ListCommentById(conn, commentId)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
@@ -63,6 +67,10 @@ func HandleCommentById(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeleteComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid comment id"))
+	}
+
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -87,6 +95,10 @@ func HandleDeleteComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Req
 
 func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid comment id"))
+	}
+
 	var commentJSON api.UpdateCommentInput
 	json.NewDecoder(r.Body).Decode(&commentJSON)
 	userID, err := userIDFromContext(r)
@@ -107,15 +119,21 @@ func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 
 func HandleInsertComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	//Extract JSON from HTTP req
-	var commentJSON api.CreateCommentInput
-	json.NewDecoder(r.Body).Decode(&commentJSON)
 
-	commentJSON.PostId = chi.URLParam(r, "postId")
+	PostId, err := strconv.Atoi(chi.URLParam(r, "postId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid post id"))
+	}
+
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
+
+	var commentJSON api.CreateCommentInput
+	json.NewDecoder(r.Body).Decode(&commentJSON)
 	commentJSON.UserId = userID
+	commentJSON.PostId = PostId
 
 	//Validate input
 

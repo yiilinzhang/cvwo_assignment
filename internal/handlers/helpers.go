@@ -8,6 +8,7 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 )
 
+// Helper func used to retreive userID from contect, return id and error
 func userIDFromContext(r *http.Request) (int, error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {

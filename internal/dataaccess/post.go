@@ -3,25 +3,20 @@ package dataaccess
 import (
 	"context"
 	"log"
-	"strconv"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
-func ListPostByTopic(conn *pgxpool.Pool, topicId string) ([]models.QueryPostResponse, error) {
-	topicInt, err := strconv.Atoi(topicId)
-	if err != nil {
-		return nil, err
-	}
+func ListPostByTopic(conn *pgxpool.Pool, topicId int) ([]models.QueryPostResponse, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT post.post_id, post.title, post.content, post.user_id, topic.title
 		FROM post 
 		INNER JOIN topic
 		ON post.topic_id = topic.topic_id
 		WHERE post.topic_id = $1`,
-		topicInt)
+		topicId)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +53,9 @@ func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	return post, nil
 }
 
-//SQL query that deletes the post with the same post id & user id from the database
-//TODO after auth pass in user id too
-//TODO change the []model.post return type to just return error or smth more accurate
+// SQL query that deletes the post with the same post id & user id from the database
+// TODO after auth pass in user id too
+// TODO change the []model.post return type to just return error or smth more accurate
 func DeletePost(conn *pgxpool.Pool, delPostObj api.DeletePostInput) ([]models.Post, error) {
 	commandTag, err := conn.Exec(context.Background(),
 		`DELETE FROM post WHERE post_id = $1 AND user_id = $2`, delPostObj.PostId, delPostObj.UserId)
@@ -68,13 +63,13 @@ func DeletePost(conn *pgxpool.Pool, delPostObj api.DeletePostInput) ([]models.Po
 		log.Fatalf("Exec error: %v\n", err)
 	}
 	if commandTag.RowsAffected() == 0 {
-        log.Printf("No rows were affected\n")
-    }
+		log.Printf("No rows were affected\n")
+	}
 	return nil, err
 }
 
-//TODO after auth pass in user id too
-//TODO change the []model.post return type to just return error or smth more accurate
+// TODO after auth pass in user id too
+// TODO change the []model.post return type to just return error or smth more accurate
 func InsertPost(conn *pgxpool.Pool, newPostObj api.CreatePostInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`INSERT INTO post (title, content, user_id, topic_id)
@@ -84,8 +79,9 @@ func InsertPost(conn *pgxpool.Pool, newPostObj api.CreatePostInput) ([]models.Po
 
 func UpdatePost(conn *pgxpool.Pool, PostObj api.UpdatePostInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
-	`UPDATE post SET content = $1 WHERE post_id = $2 AND user_id = $3`, 
-PostObj.Content, PostObj.PostId, PostObj.UserId)
-return nil, err
+		`UPDATE post SET content = $1 WHERE post_id = $2 AND user_id = $3`,
+		PostObj.Content, PostObj.PostId, PostObj.UserId)
+	return nil, err
 }
+
 //TODO add better error catching

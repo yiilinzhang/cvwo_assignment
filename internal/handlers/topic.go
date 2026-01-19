@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
@@ -41,9 +41,15 @@ func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	topicId := chi.URLParam(r, "topicId")
+	topicId, err := strconv.Atoi(chi.URLParam(r, "topicId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid topic id"))
+	}
+
 	userID, err := userIDFromContext(r)
-if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	//Extract JSON from HTTP req
 	var topicJSON api.DeleteTopicInput

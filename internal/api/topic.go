@@ -5,6 +5,6 @@ type CreateTopicInput struct {
 }
 
 type DeleteTopicInput struct {
-	TopicId string `json:"topic_id"`;
+	TopicId int `json:"topic_id"`;
 	UserId int `json:"user_id"`;	
 }

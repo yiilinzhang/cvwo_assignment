@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
@@ -22,7 +21,6 @@ const (
 	ErrRetrieveUsers           = "Failed to retrieve users in %s"
 	ErrEncodeView              = "Failed to retrieve users in %s"
 )
-
 
 func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userList, err := dataaccess.ListUser(conn)
@@ -52,7 +50,7 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 	//TODO check if i should shift API here
 	//TODO add empty user pw validation
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(userJSON.Password), bcrypt.DefaultCost)
-	userJSON.Password=""
+	userJSON.Password = ""
 	s := string(hashBytes)
 	err = dataaccess.InsertUser(conn, userJSON.Username, s)
 	if err != nil {
@@ -62,8 +60,8 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 
 }
 
-//return nil if password matches
-func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
+// return nil if password matches
+func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	//TODO might need to rename this api model
 	//JSON->GO conversion of http body
 	var loginCred api.CreateUserInput
@@ -78,25 +76,23 @@ func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 	if err != nil {
 		return nil, errors.New("Invalid Credentials")
 	}
-	
 
 	//create a JWT if auth suceeds
 	_, jwtString, _ := auth.TokenAuth.Encode(map[string]interface{}{
-    "user_id": userID,})
-
+		"user_id": userID})
 
 	data, err := json.Marshal(jwtString)
 	if err != nil {
 		return nil, errors.New("Failed to convert JWT to JSON")
 	}
 	cookie := http.Cookie{
-		Name: "jwt",
-		Value: jwtString,
-		Path: "/",
-		MaxAge: 604800,
+		Name:     "jwt",
+		Value:    jwtString,
+		Path:     "/",
+		MaxAge:   604800,
 		HttpOnly: true,
 		//TODO Need to change this in prod to true
-		Secure: false,
+		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
 	}
 
@@ -106,22 +102,21 @@ func HandleLoginAuth (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages: []string{"login successful"},
+		Messages:  []string{"login successful"},
 		ErrorCode: 0,
 	}, nil
-	
+
 }
 
-
-func HandleLogout (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
-	 cookie := http.Cookie{
-		Name: "jwt",
-		Value: "",
-		Path: "/",
-		MaxAge: -1,
+func HandleLogout(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
 		HttpOnly: true,
 		//TODO Need to change this in prod to true
-		Secure: false,
+		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(w, &cookie)
@@ -129,16 +124,18 @@ func HandleLogout (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (
 		Payload: api.Payload{
 			Data: nil,
 		},
-		Messages: []string{"login successful"},
+		Messages:  []string{"login successful"},
 		ErrorCode: 0,
 	}, nil
 }
 
 //Used to check if the user is loggedin based on cookie
 
-func HandleMe (conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error){
+func HandleMe(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := userIDFromContext(r)
-if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	//TODO depreciated
 	// userid, err := dataaccess.FetchUserName(conn, userID)
 	// if err != nil {
@@ -149,7 +146,7 @@ if err != nil { return nil, err }
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages: []string{"login successful"},
+		Messages:  []string{"login successful"},
 		ErrorCode: 0,
 	}, nil
 }

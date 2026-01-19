@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
@@ -22,7 +21,11 @@ const (
 
 func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 
-	topicId := chi.URLParam(r, "topicId")
+	topicId, err := strconv.Atoi(chi.URLParam(r, "topicId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid post id"))
+	}
+
 	postList, err := dataaccess.ListPostByTopic(conn, topicId)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
@@ -44,6 +47,10 @@ func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid post id"))
+	}
+
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -68,12 +75,17 @@ func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 
 func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("Invalid post id"))
+	}
+
 	var postJSON api.UpdatePostInput
 	json.NewDecoder(r.Body).Decode(&postJSON)
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
+
 	postJSON.PostId = postId
 	postJSON.UserId = userID
 	_, err = dataaccess.UpdatePost(conn, postJSON)
@@ -91,7 +103,9 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	var postJSON api.CreatePostInput
 	json.NewDecoder(r.Body).Decode(&postJSON)
 	userID, err := userIDFromContext(r)
-if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	postJSON.UserId = userID
 	//Validate input
 
