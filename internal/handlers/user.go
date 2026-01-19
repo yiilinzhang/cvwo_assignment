@@ -44,8 +44,9 @@ func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	//Extract JSON from HTTP req
 	var userJSON api.CreateUserInput
-	json.NewDecoder(r.Body).Decode(&userJSON)
-
+	if err := decodeJSON(r, &userJSON); err != nil {
+		return nil, err
+	}
 	//TODO rmv prnt statm
 	//TODO check if i should shift API here
 	//TODO add empty user pw validation
@@ -65,7 +66,10 @@ func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 	//TODO might need to rename this api model
 	//JSON->GO conversion of http body
 	var loginCred api.CreateUserInput
-	json.NewDecoder(r.Body).Decode(&loginCred)
+	if err := decodeJSON(r, &loginCred); err != nil {
+		return nil, api.BadRequest(errors.New("Invalid login cred"))
+	}
+
 	userID, savedPass, err := dataaccess.FetchUser(conn, loginCred.Username)
 	//TODO change this err message
 	if err != nil {

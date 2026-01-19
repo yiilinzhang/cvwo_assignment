@@ -80,7 +80,9 @@ func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 	}
 
 	var postJSON api.UpdatePostInput
-	json.NewDecoder(r.Body).Decode(&postJSON)
+	if err := decodeJSON(r, &postJSON); err != nil {
+	return nil, err
+}
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -101,7 +103,9 @@ func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	//Extract JSON from HTTP req
 	var postJSON api.CreatePostInput
-	json.NewDecoder(r.Body).Decode(&postJSON)
+	if err := decodeJSON(r, &postJSON); err != nil {
+	return nil, err
+}
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err

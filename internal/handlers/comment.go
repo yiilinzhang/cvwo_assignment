@@ -100,7 +100,10 @@ func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 	}
 
 	var commentJSON api.UpdateCommentInput
-	json.NewDecoder(r.Body).Decode(&commentJSON)
+	if err := decodeJSON(r, &commentJSON); err != nil {
+		return nil, err
+	}
+
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -131,7 +134,9 @@ func HandleInsertComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Req
 	}
 
 	var commentJSON api.CreateCommentInput
-	json.NewDecoder(r.Body).Decode(&commentJSON)
+	if err := decodeJSON(r, &commentJSON); err != nil {
+		return nil, err
+	}
 	commentJSON.UserId = userID
 	commentJSON.PostId = PostId
 

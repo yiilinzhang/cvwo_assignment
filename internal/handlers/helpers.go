@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -26,4 +27,12 @@ func userIDFromContext(r *http.Request) (int, error) {
 	}
 
 	return int(f), nil
+}
+
+//Abtract out error catching in json body decoding. Used to replace json.NewDecoder.Decode + err logic
+func decodeJSON(r *http.Request, destination any) error {
+	if err := json.NewDecoder(r.Body).Decode(destination); err != nil {
+		return api.BadRequest(errors.New("JSON body is invalid"))
+	}
+	return nil
 }

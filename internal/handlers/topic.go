@@ -70,7 +70,9 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	//Extract JSON from HTTP req
 	var topicJSON api.CreateTopicInput
-	json.NewDecoder(r.Body).Decode(&topicJSON)
+	if err := decodeJSON(r, &topicJSON); err != nil {
+	return nil, err
+}
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
