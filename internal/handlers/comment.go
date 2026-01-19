@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	ListComments = "comments.HandleListByPosts"
-
+	ListComments                  = "comments.HandleListByPosts"
 	SuccessfulListCommentsMessage = "Successfully listed comments"
 	ErrRetrieveComments           = "Failed to retrieve comments in %s"
 )
@@ -40,6 +39,8 @@ func HandleListByPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 		Messages: []string{SuccessfulListCommentsMessage},
 	}, nil
 }
+
+
 func HandleCommentById(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
 	if err != nil {
@@ -64,6 +65,7 @@ func HandleCommentById(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}, nil
 }
 
+
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeleteComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
@@ -75,42 +77,40 @@ func HandleDeleteComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Req
 	if err != nil {
 		return nil, err
 	}
-	//TODO add err catching
-	//TODO retitlr these JSON things to paylaod
-	//Extract JSON from HTTP req
-	var commentJSON api.DeleteCommentInput
-	commentJSON.CommentId = commentId
-	commentJSON.UserId = userID
+
+	var input api.DeleteCommentInput
+	input.CommentId = commentId
+	input.UserId = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = dataaccess.DeleteComment(conn, commentJSON)
+	_, err = dataaccess.DeleteComment(conn, input)
 	if err != nil {
 		return nil, err
 	}
-
 	return nil, nil
 }
 
-//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 
+//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentId, err := strconv.Atoi(chi.URLParam(r, "commentId"))
 	if err != nil {
 		return nil, api.BadRequest(errors.New("Invalid comment id"))
 	}
 
-	var commentJSON api.UpdateCommentInput
-	if err := decodeJSON(r, &commentJSON); err != nil {
-		return nil, err
-	}
-
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
-	commentJSON.CommentId = commentId
-	commentJSON.UserId = userID
-	_, err = dataaccess.UpdateComment(conn, commentJSON)
+
+	var input api.UpdateCommentInput
+	if err := decodeJSON(r, &input); err != nil {
+		return nil, err
+	}
+	input.CommentId = commentId
+	input.UserId = userID
+	_, err = dataaccess.UpdateComment(conn, input)
+
 	return &api.Response{
 		Payload:  api.Payload{},
 		Messages: []string{},
@@ -118,11 +118,9 @@ func HandleEditComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 
 }
 
+
 //Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
-
 func HandleInsertComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	//Extract JSON from HTTP req
-
 	PostId, err := strconv.Atoi(chi.URLParam(r, "postId"))
 	if err != nil {
 		return nil, api.BadRequest(errors.New("Invalid post id"))
@@ -133,17 +131,15 @@ func HandleInsertComments(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Req
 		return nil, err
 	}
 
-	var commentJSON api.CreateCommentInput
-	if err := decodeJSON(r, &commentJSON); err != nil {
+	var input api.CreateCommentInput
+	if err := decodeJSON(r, &input); err != nil {
 		return nil, err
 	}
-	commentJSON.UserId = userID
-	commentJSON.PostId = PostId
-
-	//Validate input
+	input.UserId = userID
+	input.PostId = PostId
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newComment, err := dataaccess.InsertComment(conn, commentJSON)
+	newComment, err := dataaccess.InsertComment(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListComments))
 	}

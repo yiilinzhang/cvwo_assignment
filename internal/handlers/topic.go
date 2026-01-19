@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	ListTopics = "topics.HandleList"
-
+	ListTopics                  = "topics.HandleList"
 	SuccessfulListTopicsMessage = "Successfully listed topics"
 	ErrRetrieveTopics           = "Failed to retrieve topics in %s"
 )
@@ -51,38 +50,34 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 		return nil, err
 	}
 
-	//Extract JSON from HTTP req
-	var topicJSON api.DeleteTopicInput
-	topicJSON.TopicId = topicId
-	topicJSON.UserId = userID
+	var input api.DeleteTopicInput
+	input.TopicId = topicId
+	input.UserId = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = dataaccess.DeleteTopic(conn, topicJSON)
+	_, err = dataaccess.DeleteTopic(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
 	}
-
 	return nil, nil
 }
 
-//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 
+//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	//Extract JSON from HTTP req
-	var topicJSON api.CreateTopicInput
-	if err := decodeJSON(r, &topicJSON); err != nil {
-	return nil, err
-}
 	userID, err := userIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
-	topicJSON.UserId = userID
-
-	//Validate input
+	
+	var input api.CreateTopicInput
+	input.UserId = userID
+	if err := decodeJSON(r, &input); err != nil {
+		return nil, err
+	}
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newTopic, err := dataaccess.InsertTopic(conn, topicJSON)
+	newTopic, err := dataaccess.InsertTopic(conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
 	}

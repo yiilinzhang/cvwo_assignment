@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	ListUsers = "users.HandleList"
-
+	ListUsers                  = "users.HandleList"
 	SuccessfulListUsersMessage = "Successfully listed users"
 	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
 	ErrRetrieveUsers           = "Failed to retrieve users in %s"
@@ -42,18 +41,17 @@ func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 }
 
 func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	//Extract JSON from HTTP req
-	var userJSON api.CreateUserInput
-	if err := decodeJSON(r, &userJSON); err != nil {
+	var input api.CreateUserInput
+	if err := decodeJSON(r, &input); err != nil {
 		return nil, err
 	}
-	//TODO rmv prnt statm
-	//TODO check if i should shift API here
+
 	//TODO add empty user pw validation
-	hashBytes, err := bcrypt.GenerateFromPassword([]byte(userJSON.Password), bcrypt.DefaultCost)
-	userJSON.Password = ""
+	hashBytes, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	input.Password = ""
 	s := string(hashBytes)
-	err = dataaccess.InsertUser(conn, userJSON.Username, s)
+
+	err = dataaccess.InsertUser(conn, input.Username, s)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
 	}
@@ -63,8 +61,6 @@ func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) 
 
 // return nil if password matches
 func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	//TODO might need to rename this api model
-	//JSON->GO conversion of http body
 	var loginCred api.CreateUserInput
 	if err := decodeJSON(r, &loginCred); err != nil {
 		return nil, api.BadRequest(errors.New("Invalid login cred"))
@@ -75,13 +71,12 @@ func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
 	}
-	//Compare passwords returns nil if matches, err otherwise
+
 	err = bcrypt.CompareHashAndPassword([]byte(savedPass), []byte(loginCred.Password))
 	if err != nil {
 		return nil, errors.New("Invalid Credentials")
 	}
 
-	//create a JWT if auth suceeds
 	_, jwtString, _ := auth.TokenAuth.Encode(map[string]interface{}{
 		"user_id": userID})
 
@@ -89,6 +84,7 @@ func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		return nil, errors.New("Failed to convert JWT to JSON")
 	}
+
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    jwtString,
@@ -123,7 +119,9 @@ func HandleLogout(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
 	}
+
 	http.SetCookie(w, &cookie)
+	
 	return &api.Response{
 		Payload: api.Payload{
 			Data: nil,
