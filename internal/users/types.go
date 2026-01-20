@@ -10,3 +10,8 @@ type CreateUserInput struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+type UserAuth struct {
+	UserID string;
+	PasswordHash string;
+}

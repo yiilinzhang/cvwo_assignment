@@ -13,10 +13,11 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 )
 
-type Handler struct{ Conn *pgxpool.Pool }
+type Handler struct {
+	Conn *pgxpool.Pool
+}
 
 const (
-	ListTopics                    = "topics.HandleList"
 	SuccessfulCreateTopicsMessage = "Successfully listed topic"
 	SuccessfulListTopicsMessage   = "Successfully listed topics"
 	SuccessfulUpdateTopicsMessage = "Successfully updated topic"
@@ -38,7 +39,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, e
 
 	data, err := json.Marshal(topicList)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListTopics))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "topics.List"))
 	}
 
 	return &api.Response{
@@ -49,7 +50,6 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, e
 	}, nil
 }
 
-// Delete a specific post from database, requires postid to be passed in via url
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	topicID, err := strconv.Atoi(chi.URLParam(r, "topicID"))
 	if err != nil {
@@ -65,18 +65,16 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response,
 	input.TopicID = topicID
 	input.UserID = userID
 
-	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = DeleteTopic(h.Conn, input)
-	if err != nil {
+	if err = DeleteTopic(h.Conn, input); err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrDeleteTopics, "topics.Delete"))
 	}
+
 	return &api.Response{
 		Payload:  api.Payload{},
 		Messages: []string{SuccessfulDeleteTopicsMessage},
 	}, nil
 }
 
-// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
@@ -84,27 +82,17 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 	}
 
 	var input CreateTopicInput
-	input.UserID = userID
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
+	input.UserID = userID
 
-	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newTopic, err := InsertTopic(h.Conn, input)
-	if err != nil {
+	if err = InsertTopic(h.Conn, input); err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateTopics, "topics.Create"))
 	}
 
-	//TODO check if more efficient to not unmardshell
-	data, err := json.Marshal(newTopic)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListTopics))
-	}
-
 	return &api.Response{
-		Payload: api.Payload{
-			Data: data,
-		},
+		Payload:  api.Payload{},
 		Messages: []string{SuccessfulCreateTopicsMessage},
 	}, nil
 }

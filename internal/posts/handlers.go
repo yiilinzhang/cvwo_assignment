@@ -71,7 +71,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response,
 	input.PostID = postID
 	input.UserID = userID
 
-	_, err = DeletePost(h.Conn, input)
+	err = DeletePost(h.Conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrDeletePosts, "posts.Delete"))
 	}
@@ -101,7 +101,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) (*api.Response,
 	input.PostID = postID
 	input.UserID = userID
 
-	_, err = UpdatePost(h.Conn, input)
+	err = UpdatePost(h.Conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrUpdatePosts, "posts.Update"))
 	}
@@ -125,20 +125,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 	}
 	input.UserID = userID
 
-	newPost, err := InsertPost(h.Conn, input)
+	err = InsertPost(h.Conn, input)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreatePosts, "posts.Create"))
 	}
 
-	data, err := json.Marshal(newPost)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "posts.Create"))
-	}
-
 	return &api.Response{
-		Payload: api.Payload{
-			Data: data,
-		},
+		Payload: api.Payload{},
 		Messages: []string{SuccessfulCreatePostsMessage},
 	}, nil
 }

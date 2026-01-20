@@ -34,7 +34,6 @@ func PrivateRoutes(
 			r.Get("/me", Routing(usersHandler.Me))
 			//TODO combine with queryparams
 			r.Get("/users", Routing(usersHandler.List))
-			r.Post("/logout", Routing(usersHandler.Logout))
 
 			r.Post("/posts", Routing(postsHandler.Create))
 			r.Delete("/posts/{postID}", Routing(postsHandler.Delete))
@@ -60,11 +59,15 @@ func PublicRoutes(postsHandler *posts.Handler,
 	return func(r chi.Router) {
 		//Public routes routes
 		r.Post("/login", Routing(usersHandler.LoginAuth))
+		r.Post("/logout", Routing(usersHandler.Logout))
 		r.Post("/users", Routing(usersHandler.Create))
+
 		r.Get("/posts/{topicID}", Routing(postsHandler.ListByTopic))
-		r.Get("/posts/{postID}/comments", Routing(commentsHandler.ListByPosts))
 		r.Get("/posts", Routing(postsHandler.List))
+
 		r.Get("/topics", Routing(topicsHandler.List))
+
+		r.Get("/posts/{postID}/comments", Routing(commentsHandler.ListByPosts))
 	}
 }
 

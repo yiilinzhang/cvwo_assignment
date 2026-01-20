@@ -16,7 +16,6 @@ import (
 type Handler struct{ Conn *pgxpool.Pool }
 
 const (
-	ListComments                    = "comments.HandleListByPosts"
 	SuccessfulCreateCommentsMessage = "Successfully listed comments"
 	SuccessfulListCommentsMessage   = "Successfully listed comments"
 	SuccessfulUpdateCommentsMessage = "Successfully updated comments"
@@ -26,7 +25,7 @@ const (
 	ErrRetrieveComments = "Failed to retrieve comments in %s"
 	ErrUpdateComments   = "Failed to update comment in %s"
 	ErrDeleteComments   = "Failed to delete comment in %s"
-	ErrEncodeView       = "Failed to encode comment in %s"
+	ErrEncodeComments       = "Failed to encode comment in %s"
 )
 
 func (h *Handler) ListByPosts(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
@@ -36,10 +35,13 @@ func (h *Handler) ListByPosts(w http.ResponseWriter, r *http.Request) (*api.Resp
 	}
 
 	postList, err := ListCommentByPost(h.Conn, postID)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveComments, "comments.ListByPosts"))
+	}
 
 	data, err := json.Marshal(postList)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "comments.ListByPosts"))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeComments, "comments.ListByPosts"))
 	}
 
 	return &api.Response{
@@ -63,7 +65,7 @@ func (h *Handler) ListByID(w http.ResponseWriter, r *http.Request) (*api.Respons
 
 	data, err := json.Marshal(comment)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListComments))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeComments, "comments.ListByID"))
 	}
 
 	return &api.Response{
@@ -90,8 +92,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response,
 	input.CommentID = commentID
 	input.UserID = userID
 
-	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = DeleteComment(h.Conn, input)
+	err = DeleteComment(h.Conn, input)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,6 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response,
 	}, nil
 }
 
-// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	commentID, err := strconv.Atoi(chi.URLParam(r, "commentID"))
 	if err != nil {
@@ -121,10 +121,10 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) (*api.Response,
 	input.CommentID = commentID
 	input.UserID = userID
 
-	_, err = UpdateComment(h.Conn, input)
-	if err := handlers.DecodeJSON(r, &input); err != nil {
+	if err = UpdateComment(h.Conn, input); err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrUpdateComments, "comments.Update"))
 	}
+
 	return &api.Response{
 		Payload:  api.Payload{},
 		Messages: []string{SuccessfulUpdateCommentsMessage},
@@ -132,7 +132,6 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) (*api.Response,
 
 }
 
-// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	PostID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
@@ -152,21 +151,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 	input.PostID = PostID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newComment, err := InsertComment(h.Conn, input)
-	if err != nil {
+	if err = InsertComment(h.Conn, input); err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateComments, "comments.Create"))
 	}
 
-	//TODO check if more efficient to not unmardshell
-	data, err := json.Marshal(newComment)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListComments))
-	}
-
 	return &api.Response{
-		Payload: api.Payload{
-			Data: data,
-		},
+		Payload: api.Payload{},
 		Messages: []string{SuccessfulCreateCommentsMessage},
 	}, nil
 }

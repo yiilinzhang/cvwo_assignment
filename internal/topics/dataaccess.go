@@ -2,9 +2,10 @@ package topics
 
 import (
 	"context"
-	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pkg/errors"
+	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
@@ -17,12 +18,11 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	}
 
 	defer rows.Close()
-	topic := []models.Topic{}
 
+	topic := []models.Topic{}
 	for rows.Next() {
 		var t models.Topic
-		err := rows.Scan(&t.UserID, &t.ID, &t.Title)
-		if err != nil {
+		if err := rows.Scan(&t.UserID, &t.ID, &t.Title); err != nil {
 			return nil, err
 		}
 		topic = append(topic, t)
@@ -30,26 +30,33 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	return topic, nil
 }
 
-// SQL query that deletes the post with the same post id & user id from the database
-// TODO after auth pass in user id too
-// TODO change the []model.post return type to just return error or smth more accurate
-func DeleteTopic(conn *pgxpool.Pool, delTopicObj DeleteTopicInput) ([]models.Post, error) {
-	commandTag, err := conn.Exec(context.Background(),
-		`DELETE FROM topic WHERE topic_id = $1 AND user_id = $2`, delTopicObj.TopicID, delTopicObj.UserID)
+func DeleteTopic(conn *pgxpool.Pool, input DeleteTopicInput) error {
+	commandTag, err := conn.Exec(
+		context.Background(),
+		`DELETE FROM topic WHERE topic_id = $1 AND user_id = $2`,
+		input.TopicID,
+		input.UserID,
+	)
 	if err != nil {
-		log.Fatalf("Exec error: %v\n", err)
+		return err
 	}
+
 	if commandTag.RowsAffected() == 0 {
-		log.Printf("No rows were affected\n")
+		return api.NotFound(errors.New("topic doesnt exist"))
 	}
-	return nil, err
+	return nil
 }
 
-// TODO after auth pass in user id too
-// TODO change the []model.post return type to just return error or smth more accurate
-func InsertTopic(conn *pgxpool.Pool, newTopicObj CreateTopicInput) ([]models.Post, error) {
-	_, err := conn.Exec(context.Background(),
-		`INSERT INTO topic (title, user_id)
-		VALUES ($1, $2)`, newTopicObj.Title, newTopicObj.UserID)
-	return nil, err
+func InsertTopic(conn *pgxpool.Pool, input CreateTopicInput) error {
+	_, err := conn.Exec(
+		context.Background(),
+		`INSERT INTO topic (title, user_id) VALUES ($1, $2)`,
+		input.Title,
+		input.UserID,
+	)
+	//TODO check if i need this or no error is nil
+	if err != nil {
+		return err
+	}
+	return nil
 }

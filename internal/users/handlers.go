@@ -13,16 +13,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Handler struct{ Conn *pgxpool.Pool }
+type Handler struct {
+	Conn *pgxpool.Pool
+}
 
 const (
-	ListUsers                  = "HandleList"
 	SuccessfulListUsersMessage = "Successfully listed users"
 
-	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
-	ErrRetrieveUsers           = "Failed to retrieve users in %s"
-	ErrCreateUsers           = "Failed to create user in %s"
-	ErrEncodeView              = "Failed to retrieve users in %s"
+	ErrRetrieveUsers = "Failed to retrieve users in %s"
+	ErrCreateUsers   = "Failed to create user in %s"
+
+	ErrEncodeView = "Failed to encode users in %s"
 )
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
@@ -33,7 +34,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, e
 
 	data, err := json.Marshal(userList)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListUsers))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "users.List"))
 	}
 
 	return &api.Response{
@@ -49,17 +50,26 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
+	if input.Username == "" || input.Password == "" {
+		return nil, api.BadRequest(errors.New("username and password are required"))
+	}
 
-	//TODO add empty user pw validation (alr done in frotnend?)
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-	input.Password = ""
-	s := string(hashBytes)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateUsers, "users.Create"))
+	}
 
+	input.Password = ""
+
+	s := string(hashBytes)
 	err = InsertUser(h.Conn, input.Username, s)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateUsers, "users.Create"))
 	}
-	return nil, err
+	return &api.Response{
+		Payload:  api.Payload{},
+		Messages: []string{"signup successful"},
+	}, nil
 
 }
 
@@ -67,27 +77,21 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	var loginCred CreateUserInput
 	if err := handlers.DecodeJSON(r, &loginCred); err != nil {
-		return nil, api.BadRequest(errors.New("Invalid login cred"))
+		return nil, api.BadRequest(errors.New("invalid login cred"))
 	}
 
-	userID, savedPass, err := FetchUser(h.Conn, loginCred.Username)
-	//TODO change this err message
+	user, err := FetchUser(h.Conn, loginCred.Username)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, "users.LoginAuth"))
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(savedPass), []byte(loginCred.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(loginCred.Password))
 	if err != nil {
-		return nil, errors.New("Invalid Credentials")
+		return nil, errors.New("invalid credentials")
 	}
 
 	_, jwtString, _ := auth.TokenAuth.Encode(map[string]interface{}{
-		"user_id": userID})
-
-	data, err := json.Marshal(jwtString)
-	if err != nil {
-		return nil, errors.New("Failed to convert JWT to JSON")
-	}
+		"user_id": user.UserID})
 
 	cookie := http.Cookie{
 		Name:     "jwt",
@@ -103,9 +107,7 @@ func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Respon
 	http.SetCookie(w, &cookie)
 
 	return &api.Response{
-		Payload: api.Payload{
-			Data: data,
-		},
+		Payload:  api.Payload{},
 		Messages: []string{"login successful"},
 	}, nil
 
@@ -133,18 +135,20 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) (*api.Response,
 	}, nil
 }
 
-//Used to check if the user is loggedin based on cookie
-
 func (h *Handler) Me(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
 	data, err := json.Marshal(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &api.Response{
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages: []string{"login successful"},
+		Messages: []string{"me okay"},
 	}, nil
 }
