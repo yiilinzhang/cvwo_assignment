@@ -11,10 +11,10 @@ import (
 
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
+	"github.com/yiilinzhang/cvwo_assignment/internal/comments"
 	"github.com/yiilinzhang/cvwo_assignment/internal/posts"
 	"github.com/yiilinzhang/cvwo_assignment/internal/topics"
 	"github.com/yiilinzhang/cvwo_assignment/internal/users"
-	"github.com/yiilinzhang/cvwo_assignment/internal/comments"
 )
 
 type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
@@ -32,16 +32,16 @@ func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			r.Post("/logout", Routing(conn, users.HandleLogout))
 
 			r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
-			r.Delete("/posts/{postId}", Routing(conn, posts.HandleDeletePosts))
-			r.Patch("/posts/{postId}", Routing(conn, posts.HandleEditPosts))
-			r.Post("/posts/{postId}/comments", Routing(conn, comments.HandleInsertComments))
+			r.Delete("/posts/{postID}", Routing(conn, posts.HandleDeletePosts))
+			r.Patch("/posts/{postID}", Routing(conn, posts.HandleEditPosts))
+			r.Post("/posts/{postID}/comments", Routing(conn, comments.HandleInsertComments))
 
 			r.Post("/topics", Routing(conn, topics.HandleInsertTopics))
-			r.Delete("/topics/{topicId}", Routing(conn, topics.HandleDeleteTopics))
+			r.Delete("/topics/{topicID}", Routing(conn, topics.HandleDeleteTopics))
 
-			r.Get("/comments/{commentId}", Routing(conn, comments.HandleCommentById))
-			r.Delete("/comments/{commentId}", Routing(conn, comments.HandleDeleteComments))
-			r.Patch("/comments/{commentId}", Routing(conn, comments.HandleEditComments))
+			r.Get("/comments/{commentID}", Routing(conn, comments.HandleCommentByID))
+			r.Delete("/comments/{commentID}", Routing(conn, comments.HandleDeleteComments))
+			r.Patch("/comments/{commentID}", Routing(conn, comments.HandleEditComments))
 
 		})
 	}
@@ -54,8 +54,8 @@ func PublicRoutes(conn *pgxpool.Pool) func(r chi.Router) {
 			//
 			r.Post("/login", Routing(conn, users.HandleLoginAuth))
 			r.Post("/users", Routing(conn, users.HandleAddUsers))
-			r.Get("/posts/{topicId}", Routing(conn, posts.HandleListByTopic))
-			r.Get("/posts/{postId}/comments", Routing(conn, comments.HandleListByPosts))
+			r.Get("/posts/{topicID}", Routing(conn, posts.HandleListByTopic))
+			r.Get("/posts/{postID}/comments", Routing(conn, comments.HandleListByPosts))
 			r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
 			r.Get("/topics", Routing(conn, topics.HandleListTopics))
 		})

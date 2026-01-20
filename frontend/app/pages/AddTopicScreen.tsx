@@ -4,8 +4,6 @@ import { Button, Typography, TextField } from "@mui/material";
 import { type FormEvent } from "react";
 import axios from "axios";
 
-
-//TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function AddTopics() {
   const navigate = useNavigate();

@@ -17,7 +17,7 @@ export function useAuth() {
   });
 
   return {
-    userId: isError ? null : (data?.payload?.data ?? null),
+    userID: isError ? null : (data?.payload?.data ?? null),
     isLoading,
   };
 }

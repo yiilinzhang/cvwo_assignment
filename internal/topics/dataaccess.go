@@ -15,13 +15,13 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	defer rows.Close()
 	topic := []models.Topic{}
-	
+
 	for rows.Next() {
 		var t models.Topic
-		err := rows.Scan(&t.UserId, &t.ID, &t.Title)
+		err := rows.Scan(&t.UserID, &t.ID, &t.Title)
 		if err != nil {
 			return nil, err
 		}
@@ -35,7 +35,7 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 // TODO change the []model.post return type to just return error or smth more accurate
 func DeleteTopic(conn *pgxpool.Pool, delTopicObj DeleteTopicInput) ([]models.Post, error) {
 	commandTag, err := conn.Exec(context.Background(),
-		`DELETE FROM topic WHERE topic_id = $1 AND user_id = $2`, delTopicObj.TopicId, delTopicObj.UserId)
+		`DELETE FROM topic WHERE topic_id = $1 AND user_id = $2`, delTopicObj.TopicID, delTopicObj.UserID)
 	if err != nil {
 		log.Fatalf("Exec error: %v\n", err)
 	}
@@ -50,6 +50,6 @@ func DeleteTopic(conn *pgxpool.Pool, delTopicObj DeleteTopicInput) ([]models.Pos
 func InsertTopic(conn *pgxpool.Pool, newTopicObj CreateTopicInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`INSERT INTO topic (title, user_id)
-		VALUES ($1, $2)`, newTopicObj.Title, newTopicObj.UserId)
+		VALUES ($1, $2)`, newTopicObj.Title, newTopicObj.UserID)
 	return nil, err
 }

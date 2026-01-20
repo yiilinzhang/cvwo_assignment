@@ -20,7 +20,7 @@ type TopicsResponse = {payload?: {data?: Topic[]}}
 export default function Posts() {
   const { id } = useParams();
 
-  const { userId, isLoading: userLoading } = useAuth();
+  const { userID, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
     queryKey: [`posts`, id ?? "all"],
@@ -56,7 +56,7 @@ export default function Posts() {
             id={post.post_id}
             title={post.title}
             content={post.content}
-            isOwner={Number(post.user_id) === userId}
+            isOwner={Number(post.user_id) === userID}
             showChat={true}
           />
         ))

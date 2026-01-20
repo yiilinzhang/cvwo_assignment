@@ -16,12 +16,12 @@ func UserIDFromContext(r *http.Request) (int, error) {
 		return 0, api.Unauthorized(errors.New("Invalid token"))
 	}
 
-	userId, ok := claims["user_id"]
+	userID, ok := claims["user_id"]
 	if !ok {
 		return 0, api.Unauthorized(errors.New("Missing user_id"))
 	}
 
-	f, ok := userId.(float64)
+	f, ok := userID.(float64)
 	if !ok {
 		return 0, api.Unauthorized(errors.New("invalid user_id claim type"))
 	}
@@ -29,7 +29,7 @@ func UserIDFromContext(r *http.Request) (int, error) {
 	return int(f), nil
 }
 
-//Abtract out error catching in json body decoding. Used to replace json.NewDecoder.Decode + err logic
+// Abtract out error catching in json body decoding. Used to replace json.NewDecoder.Decode + err logic
 func DecodeJSON(r *http.Request, destination any) error {
 	if err := json.NewDecoder(r.Body).Decode(destination); err != nil {
 		return api.BadRequest(errors.New("JSON body is invalid"))

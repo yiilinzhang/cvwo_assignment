@@ -46,7 +46,6 @@ export default function LoginPage() {
     };
     login.mutate(body);
 
-    //TODO add code to save jwt
   };
   return (
     <form onSubmit={handleSubmit}>

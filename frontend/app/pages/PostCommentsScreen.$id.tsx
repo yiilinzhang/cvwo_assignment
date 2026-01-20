@@ -30,11 +30,11 @@ type PostsResponse = { payload?: { data?: PostItem[] } };
 //TODO chaneg this from cache to a new query
 export default function PostComments({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
-  const { userId, isLoading: userLoading } = useAuth();
+  const { userID, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const postId = Number(params.id);
-  if (!Number.isFinite(postId)) {
+  const postID = Number(params.id);
+  if (!Number.isFinite(postID)) {
     return <div>Invalid post id.</div>;
   }
   //Fetch all comments for the particular post
@@ -42,14 +42,14 @@ export default function PostComments({ params }: Route.ComponentProps) {
     queryKey: [`comments`, params.id],
     queryFn: async () => {
       const response = await axios.get(
-        `http://localhost:8000/posts/${postId}/comments`
+        `http://localhost:8000/posts/${postID}/comments`
       );
       return await response.data;
     },
   });
   const cachedPosts = queryClient.getQueryData<PostsResponse>(["posts", "all"]);
   const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
-    queryKey: [`posts`, postId],
+    queryKey: [`posts`, postID],
     queryFn: async () => {
       const url = "http://localhost:8000/posts";
       const response = await axios.get(url);
@@ -59,17 +59,17 @@ export default function PostComments({ params }: Route.ComponentProps) {
     initialData: cachedPosts,
   });
 
-  const currPost = postData?.payload?.data?.find((p) => p.post_id === postId);
+  const currPost = postData?.payload?.data?.find((p) => p.post_id === postID);
 
   const createComment = useMutation({
     mutationFn: async (body:{content : String}) =>
-      await axios.post(`http://localhost:8000/posts/${postId}/comments`, body, {
+      await axios.post(`http://localhost:8000/posts/${postID}/comments`, body, {
         withCredentials: true,
       }),
     onSuccess: (body ) => {
       alert("Successfully created comment.");
       setIsEditing(false);
-      queryClient.invalidateQueries({ queryKey: [`comments`, postId] });
+      queryClient.invalidateQueries({ queryKey: [`comments`, postID] });
     },
     onError:()=> {
       alert("Failed to create comment.")
@@ -104,7 +104,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
           id={currPost.post_id}
           title={currPost.title}
           content={currPost.content}
-          isOwner={Number(currPost.user_id) === userId}
+          isOwner={Number(currPost.user_id) === userID}
           showChat={false}
         />
       )}
@@ -156,7 +156,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
             disableRipple
             sx={{ color: "black", borderColor: "black", borderRadius: 20 }}
             onClick={() => {
-              userId ? setIsEditing(true) : alert("login to leave a comment");
+              userID ? setIsEditing(true) : alert("login to leave a comment");
             }}
           >
             <PlusIcon />
@@ -169,9 +169,9 @@ export default function PostComments({ params }: Route.ComponentProps) {
           key={comment.comment_id}
           username={comment.name}
           content={comment.content}
-          isOwner={Number(comment.user_id) === userId}
-          commentId={comment.comment_id}
-          postId={postId}
+          isOwner={Number(comment.user_id) === userID}
+          commentID={comment.comment_id}
+          postID={postID}
         />
       ))}
     </div>

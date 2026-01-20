@@ -11,7 +11,7 @@ type User struct {
 type Topic struct {
 	ID     int    `json:"topic_id"`
 	Title  string `json:"title"`
-	UserId int    `json:"user_id"`
+	UserID int    `json:"user_id"`
 }
 
 // What i want returned, user.username, post.content, post.title, comment.content, comment.id
@@ -22,14 +22,14 @@ type Post struct {
 	ID      int    `json:"post_id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
-	UserId  int    `json:"user_id"`
-	TopicId int    `json:"topic_id" `
+	UserID  int    `json:"user_id"`
+	TopicID int    `json:"topic_id" `
 }
 
 // Represents a comment under a post
 type Comment struct {
 	ID      int    `json:"comment_id"`
 	Content string `json:"content"`
-	UserId  int    `json:"user_id"`
-	PostId  int    `json:"post_id" `
+	UserID  int    `json:"user_id"`
+	PostID  int    `json:"post_id" `
 }

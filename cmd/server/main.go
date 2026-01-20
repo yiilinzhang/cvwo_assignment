@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error loading .env file")
 	}
-	//TODO stop using temp database url implmeent .env
+
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
 		log.Fatalln("DATABASE_URL is empty")

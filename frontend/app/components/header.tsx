@@ -15,7 +15,7 @@ type TopicsResponse = { payload?: { data?: Topic[] } };
 export function Header() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { userId, isLoading: userLoading } = useAuth();
+  const { userID, isLoading: userLoading } = useAuth();
   const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
   const [addAnchorEl, setAddAnchorEl] = useState<HTMLElement | null>(null);
   const getTopics = async (): Promise<TopicsResponse> => {
@@ -46,17 +46,15 @@ export function Header() {
 
   const logout = useMutation({
     mutationFn: async () =>
-      await axios.post("http://localhost:8000/logout", {
-        withCredentials: true,
+      await axios.post("http://localhost:8000/logout", null, {
+        withCredentials: true
       }),
     onSuccess: () => {
-      () => {
         queryClient.invalidateQueries({ queryKey: ["me"] });
         alert("Successfully logged out.");
         handleUserClose();
         navigate("/");
-      };
-    },
+      },
     onError: () => alert("Failed to logout"),
   });
   
@@ -64,7 +62,7 @@ export function Header() {
   return (
     <div className="h-20 sticky top-0 z-50">
       <div className="h-20 bg-[#9BE3FF] ps-4 flex items-center gap-4">
-        <SideBar topicsList={data?.payload?.data} userId={userId} />
+        <SideBar topicsList={data?.payload?.data} userID={userID} />
         <Link to="/">
           <Typography fontWeight={500} color="white" fontSize={46}>
             CVWO
@@ -72,7 +70,7 @@ export function Header() {
         </Link>
         <div className="w-full flex justify-end px-4">
           {/* TODO impmenet my post */}
-          {userId ? (
+          {userID ? (
             <>
               <IconButton
                 aria-controls="add-dropdown"

@@ -14,10 +14,10 @@ type Topic = { topic_id: number; title: string; user_id: number };
 //SIidebar component for topics list. Used in Header
 export function SideBar({
   topicsList = [],
-  userId,
+  userID,
 }: {
   topicsList?: Topic[];
-  userId: number | null;
+  userID: number | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
@@ -73,8 +73,7 @@ export function SideBar({
                     {item.title}
                   </Typography>
                 </Button>
-                {/* TODO update db to num and chaneg this */}
-                {userId !== null && item.user_id === userId && (
+                {userID !== null && item.user_id === userID && (
                   <IconButton
                     aria-label="delete_post"
                     onClick={() => deleteTopic.mutate(item.topic_id)}

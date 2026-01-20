@@ -2,24 +2,24 @@ package comments
 
 type CreateCommentInput struct {
 	Content string `json:"content"`
-	UserId  int `json:"user_id"`
-	PostId int `json:"post_id" `
+	UserID  int    `json:"user_id"`
+	PostID  int    `json:"post_id" `
 }
 
 type DeleteCommentInput struct {
-	CommentId int `json:"comment_id"`;
-	UserId int `json:"user_id"`;	
+	CommentID int `json:"comment_id"`
+	UserID    int `json:"user_id"`
 }
 
 type UpdateCommentInput struct {
-	CommentId int `json:"comment_id"`;
-	Content string `json:"content"`;
-	UserId int `json:"user_id"`;	 
+	CommentID int    `json:"comment_id"`
+	Content   string `json:"content"`
+	UserID    int    `json:"user_id"`
 }
 
 type QueryCommentResponse struct {
 	ID       int    `json:"comment_id"`
 	Content  string `json:"content"`
 	UserName string `json:"name"`
-	UserId   int    `json:"user_id"`
+	UserID   int    `json:"user_id"`
 }

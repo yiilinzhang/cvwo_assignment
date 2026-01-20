@@ -1,6 +1,5 @@
 package comments
 
-
 import (
 	"context"
 	"log"
@@ -14,7 +13,7 @@ import (
 // TODO change the []model.post return type to just return error or smth more accurate
 func DeleteComment(conn *pgxpool.Pool, delCommentObj DeleteCommentInput) ([]models.Post, error) {
 	commandTag, err := conn.Exec(context.Background(),
-		`DELETE FROM comment WHERE comment_id = $1 AND user_id = $2`, delCommentObj.CommentId, delCommentObj.UserId)
+		`DELETE FROM comment WHERE comment_id = $1 AND user_id = $2`, delCommentObj.CommentID, delCommentObj.UserID)
 	if err != nil {
 		log.Fatalf("Exec error: %v\n", err)
 	}
@@ -24,15 +23,15 @@ func DeleteComment(conn *pgxpool.Pool, delCommentObj DeleteCommentInput) ([]mode
 	return nil, err
 }
 
-//What i want returned, user.username, post.content, post.title, comment.content
-func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]QueryCommentResponse, error) {
+// What i want returned, user.username, post.content, post.title, comment.content
+func ListCommentByPost(conn *pgxpool.Pool, postID int) ([]QueryCommentResponse, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT comment.comment_id, comment.content, comment.user_id, users.name
 		FROM comment 
 		INNER JOIN users
 		ON comment.user_id = users.userid
 		WHERE comment.post_id = $1`,
-		postId)
+		postID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +41,7 @@ func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]QueryCommentResponse, 
 
 	for rows.Next() {
 		var c QueryCommentResponse
-		err := rows.Scan(&c.ID, &c.Content, &c.UserId, &c.UserName)
+		err := rows.Scan(&c.ID, &c.Content, &c.UserID, &c.UserName)
 		if err != nil {
 			return nil, err
 		}
@@ -56,19 +55,19 @@ func ListCommentByPost(conn *pgxpool.Pool, postId int) ([]QueryCommentResponse, 
 func InsertComment(conn *pgxpool.Pool, newCommentObj CreateCommentInput) ([]models.Comment, error) {
 	_, err := conn.Exec(context.Background(),
 		`INSERT INTO comment (content, user_id, post_id)
-		VALUES ($1, $2, $3)`, newCommentObj.Content, newCommentObj.UserId, newCommentObj.PostId)
+		VALUES ($1, $2, $3)`, newCommentObj.Content, newCommentObj.UserID, newCommentObj.PostID)
 	return nil, err
 }
 
 //What i want returned, user.username, post.content, post.title, comment.content
 
-func ListCommentById(conn *pgxpool.Pool, commentId int) ([]QueryCommentResponse, error) {
+func ListCommentByID(conn *pgxpool.Pool, commentID int) ([]QueryCommentResponse, error) {
 	//TODO change to conn.exec cus one row only and update storage models
 	rows, err := conn.Query(context.Background(),
 		`SELECT content, user_id
 		FROM comment 
 		WHERE comment_id = $1`,
-		commentId)
+		commentID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +77,7 @@ func ListCommentById(conn *pgxpool.Pool, commentId int) ([]QueryCommentResponse,
 
 	for rows.Next() {
 		var c QueryCommentResponse
-		err := rows.Scan(&c.Content, &c.UserId)
+		err := rows.Scan(&c.Content, &c.UserID)
 		if err != nil {
 			return nil, err
 		}
@@ -90,6 +89,6 @@ func ListCommentById(conn *pgxpool.Pool, commentId int) ([]QueryCommentResponse,
 func UpdateComment(conn *pgxpool.Pool, CommentObj UpdateCommentInput) ([]models.Post, error) {
 	_, err := conn.Exec(context.Background(),
 		`UPDATE comment SET content = $1 WHERE comment_id = $2 AND user_id = $3`,
-		CommentObj.Content, CommentObj.CommentId, CommentObj.UserId)
+		CommentObj.Content, CommentObj.CommentID, CommentObj.UserID)
 	return nil, err
 }

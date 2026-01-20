@@ -126,7 +126,7 @@ func HandleLogout(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*
 		Payload: api.Payload{
 			Data: nil,
 		},
-		Messages:  []string{"login successful"},
+		Messages:  []string{"logout successful"},
 		ErrorCode: 0,
 	}, nil
 }
@@ -138,11 +138,6 @@ func HandleMe(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.
 	if err != nil {
 		return nil, err
 	}
-	//TODO depreciated
-	// userid, err := FetchUserName(conn, userID)
-	// if err != nil {
-	// 	return nil, errors.New("Title later")
-	// }
 	data, err := json.Marshal(userID)
 	return &api.Response{
 		Payload: api.Payload{

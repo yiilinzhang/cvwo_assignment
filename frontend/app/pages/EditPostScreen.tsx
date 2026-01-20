@@ -14,13 +14,12 @@ type PostItem = {
 }
 
 type PostResponse = { payload?: {data?: PostItem[]}}
-//TODO add typing later
 //TODO use MUI alert for a prettier alert
 export default function EditPosts({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const cachedPosts = queryClient.getQueryData<PostResponse>(["posts", "all"]);
-  const postId = params?.id;
+  const postID = params?.id;
 
   const { isLoading, data: postData } = useQuery<PostResponse>({
     queryKey: [`posts`, "all"],
@@ -32,7 +31,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   });
 
   const currPost = postData?.payload?.data?.find(
-    (p) => p.post_id === Number(postId)
+    (p) => p.post_id === Number(postID)
   );
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -45,7 +44,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   };
   const updatePost = useMutation({
     mutationFn: async (body: {content: string}) => {
-      await axios.patch(`http://localhost:8000/posts/${postId}`, body, {
+      await axios.patch(`http://localhost:8000/posts/${postID}`, body, {
         withCredentials: true,
       });
     },

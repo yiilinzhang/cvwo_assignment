@@ -22,12 +22,12 @@ const (
 
 func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 
-	topicId, err := strconv.Atoi(chi.URLParam(r, "topicId"))
+	topicID, err := strconv.Atoi(chi.URLParam(r, "topicID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid post id"))
+		return nil, api.BadRequest(errors.New("Invalid topicID"))
 	}
 
-	postList, err := ListPostByTopic(conn, topicId)
+	postList, err := ListPostByTopic(conn, topicID)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
 	}
@@ -47,21 +47,19 @@ func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
+	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid post id"))
+		return nil, api.BadRequest(errors.New("Invalid postID"))
 	}
 
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
-	//TODO add err catching
 
-	//Extract JSON from HTTP req
 	var input DeletePostInput
-	input.PostId = postId
-	input.UserId = userID
+	input.PostID = postID
+	input.UserID = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	_, err = DeletePost(conn, input)
@@ -75,9 +73,9 @@ func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 //Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 
 func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
+	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid post id"))
+		return nil, api.BadRequest(errors.New("Invalid postID"))
 	}
 
 	var input UpdatePostInput
@@ -89,8 +87,8 @@ func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 		return nil, err
 	}
 
-	input.PostId = postId
-	input.UserId = userID
+	input.PostID = postID
+	input.UserID = userID
 	_, err = UpdatePost(conn, input)
 	return &api.Response{
 		Payload:  api.Payload{},
@@ -110,7 +108,7 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
-	input.UserId = userID
+	input.UserID = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	newPost, err := InsertPost(conn, input)

@@ -1,11 +1,11 @@
 package topics
 
 type CreateTopicInput struct {
-	Title string `json:"title"`;
-	UserId int `json:"user_id"`;	
+	Title  string `json:"title"`
+	UserID int    `json:"user_id"`
 }
 
 type DeleteTopicInput struct {
-	TopicId int `json:"topic_id"`;
-	UserId int `json:"user_id"`;	
+	TopicID int `json:"topic_id"`
+	UserID  int `json:"user_id"`
 }

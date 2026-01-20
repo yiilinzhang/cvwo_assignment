@@ -44,12 +44,12 @@ export default function AddPosts() {
     const formData = new FormData(form);
     const title = String(formData.get("title") || "").trim();
     const content = String(formData.get("content") || "").trim();
-    const topicId = Number(formData.get("topic_id"));
-     if (!content || !title || !Number.isFinite(topicId)) return;
+    const topicID = Number(formData.get("topic_id"));
+     if (!content || !title || !Number.isFinite(topicID)) return;
     const body : CreatePostBody = {
       title: title,
       content: content,
-      topic_id: topicId,
+      topic_id: topicID,
     };
     createPost.mutate(body);
   };

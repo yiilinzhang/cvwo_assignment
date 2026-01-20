@@ -17,7 +17,7 @@ const (
 	ListTopics                  = "topics.HandleList"
 	SuccessfulListTopicsMessage = "Successfully listed topics"
 	ErrRetrieveTopics           = "Failed to retrieve topics in %s"
-	ErrEncodeView              = "Failed to retrieve topics in %s"
+	ErrEncodeView               = "Failed to retrieve topics in %s"
 )
 
 func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
@@ -41,9 +41,9 @@ func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 
 // Delete a specific post from database, requires postid to be passed in via url
 func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	topicId, err := strconv.Atoi(chi.URLParam(r, "topicId"))
+	topicID, err := strconv.Atoi(chi.URLParam(r, "topicID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid topic id"))
+		return nil, api.BadRequest(errors.New("Invalid topicID"))
 	}
 
 	userID, err := handlers.UserIDFromContext(r)
@@ -52,8 +52,8 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 	}
 
 	var input DeleteTopicInput
-	input.TopicId = topicId
-	input.UserId = userID
+	input.TopicID = topicID
+	input.UserID = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
 	_, err = DeleteTopic(conn, input)
@@ -63,16 +63,15 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 	return nil, nil
 }
 
-
-//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
+// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var input CreateTopicInput
-	input.UserId = userID
+	input.UserID = userID
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
