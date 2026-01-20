@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/auth"
@@ -17,65 +16,80 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/users"
 )
 
-type ListHandler func(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error)
+type HandlerFunc func(w http.ResponseWriter, r *http.Request) (*api.Response, error)
 
-func PrivateRoutes(conn *pgxpool.Pool) func(r chi.Router) {
+func PrivateRoutes(
+	postsHandler *posts.Handler,
+	usersHandler *users.Handler,
+	topicsHandler *topics.Handler,
+	commentsHandler *comments.Handler,
+
+) func(r chi.Router) {
 	return func(r chi.Router) {
 		//Private routes
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.TokenAuth))
 			r.Use(jwtauth.Authenticator(auth.TokenAuth))
 
-			r.Get("/me", Routing(conn, users.HandleMe))
+			r.Get("/me", Routing(usersHandler.Me))
 			//TODO combine with queryparams
-			r.Get("/users", Routing(conn, users.HandleListUsers))
-			r.Post("/logout", Routing(conn, users.HandleLogout))
+			r.Get("/users", Routing(usersHandler.List))
+			r.Post("/logout", Routing(usersHandler.Logout))
 
-			r.Post("/posts", Routing(conn, posts.HandleInsertPosts))
-			r.Delete("/posts/{postID}", Routing(conn, posts.HandleDeletePosts))
-			r.Patch("/posts/{postID}", Routing(conn, posts.HandleEditPosts))
-			r.Post("/posts/{postID}/comments", Routing(conn, comments.HandleInsertComments))
+			r.Post("/posts", Routing(postsHandler.Create))
+			r.Delete("/posts/{postID}", Routing(postsHandler.Delete))
+			r.Patch("/posts/{postID}", Routing(postsHandler.Update))
+			r.Post("/posts/{postID}/comments", Routing(commentsHandler.Create))
 
-			r.Post("/topics", Routing(conn, topics.HandleInsertTopics))
-			r.Delete("/topics/{topicID}", Routing(conn, topics.HandleDeleteTopics))
+			r.Post("/topics", Routing(topicsHandler.Create))
+			r.Delete("/topics/{topicID}", Routing(topicsHandler.Delete))
 
-			r.Get("/comments/{commentID}", Routing(conn, comments.HandleCommentByID))
-			r.Delete("/comments/{commentID}", Routing(conn, comments.HandleDeleteComments))
-			r.Patch("/comments/{commentID}", Routing(conn, comments.HandleEditComments))
+			r.Get("/comments/{commentID}", Routing(commentsHandler.ListByID))
+			r.Delete("/comments/{commentID}", Routing(commentsHandler.Delete))
+			r.Patch("/comments/{commentID}", Routing(commentsHandler.Update))
 
 		})
 	}
 }
 
-func PublicRoutes(conn *pgxpool.Pool) func(r chi.Router) {
+func PublicRoutes(postsHandler *posts.Handler,
+	usersHandler *users.Handler,
+	topicsHandler *topics.Handler,
+	commentsHandler *comments.Handler,
+) func(r chi.Router) {
 	return func(r chi.Router) {
 		//Public routes routes
-		r.Group(func(r chi.Router) {
-			//
-			r.Post("/login", Routing(conn, users.HandleLoginAuth))
-			r.Post("/users", Routing(conn, users.HandleAddUsers))
-			r.Get("/posts/{topicID}", Routing(conn, posts.HandleListByTopic))
-			r.Get("/posts/{postID}/comments", Routing(conn, comments.HandleListByPosts))
-			r.Get("/posts", Routing(conn, posts.HandleListAllPosts))
-			r.Get("/topics", Routing(conn, topics.HandleListTopics))
-		})
+		r.Post("/login", Routing(usersHandler.LoginAuth))
+		r.Post("/users", Routing(usersHandler.Create))
+		r.Get("/posts/{topicID}", Routing(postsHandler.ListByTopic))
+		r.Get("/posts/{postID}/comments", Routing(commentsHandler.ListByPosts))
+		r.Get("/posts", Routing(postsHandler.List))
+		r.Get("/topics", Routing(topicsHandler.List))
 	}
 }
 
-// TODO double check this code again
-func Routing(conn *pgxpool.Pool, HandleList ListHandler) http.HandlerFunc {
+// Routing Wraps handlers to fmt JSON reponses and ... smth about handle error change when completed todo
+// TODO error messgaes giges too mcuh into i think
+func Routing(HandleList HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		response, err := HandleList(conn, w, req)
+		w.Header().Set("Content-Type", "application/json")
+
+		response, err := HandleList(w, req)
 		if err != nil {
+			status := http.StatusInternalServerError
 			var httpErr api.HTTPError
 			if errors.As(err, &httpErr) {
-				http.Error(w, httpErr.Error(), httpErr.Status)
-				return
+				status = httpErr.Status
 			}
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			w.WriteHeader(status)
+			json.NewEncoder(w).Encode(api.Response{
+				Payload:  api.Payload{},
+				Messages: []string{err.Error()},
+			})
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
+
 		json.NewEncoder(w).Encode(response)
 	}
 }

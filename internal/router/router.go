@@ -5,6 +5,11 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yiilinzhang/cvwo_assignment/internal/routes"
+
+	"github.com/yiilinzhang/cvwo_assignment/internal/comments"
+	"github.com/yiilinzhang/cvwo_assignment/internal/posts"
+	"github.com/yiilinzhang/cvwo_assignment/internal/topics"
+	"github.com/yiilinzhang/cvwo_assignment/internal/users"
 )
 
 func Setup(conn *pgxpool.Pool) chi.Router {
@@ -22,8 +27,12 @@ func Setup(conn *pgxpool.Pool) chi.Router {
 }
 
 func setUpRoutes(r chi.Router, conn *pgxpool.Pool) {
+	postsHandler := &posts.Handler{Conn: conn}
+	usersHandler := &users.Handler{Conn: conn}
+	topicsHandler := &topics.Handler{Conn: conn}
+	commentsHandler := &comments.Handler{Conn: conn}
 	//TODO use grpoup later when i add login auth
 	//Private toutes
-	r.Group(routes.PrivateRoutes(conn))
-	r.Group(routes.PublicRoutes(conn))
+	r.Group(routes.PrivateRoutes(postsHandler, usersHandler, topicsHandler, commentsHandler))
+	r.Group(routes.PublicRoutes(postsHandler, usersHandler, topicsHandler, commentsHandler))
 }

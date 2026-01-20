@@ -13,18 +13,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type Handler struct{ Conn *pgxpool.Pool }
+
 const (
 	ListUsers                  = "HandleList"
 	SuccessfulListUsersMessage = "Successfully listed users"
+
 	ErrRetrieveDatabase        = "Failed to retrieve database in %s"
 	ErrRetrieveUsers           = "Failed to retrieve users in %s"
+	ErrCreateUsers           = "Failed to create user in %s"
 	ErrEncodeView              = "Failed to retrieve users in %s"
 )
 
-func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	userList, err := ListUser(conn)
+func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	userList, err := ListUser(h.Conn)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, "users.List"))
 	}
 
 	data, err := json.Marshal(userList)
@@ -40,36 +44,36 @@ func HandleListUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 	}, nil
 }
 
-func HandleAddUsers(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	var input CreateUserInput
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
 
-	//TODO add empty user pw validation
+	//TODO add empty user pw validation (alr done in frotnend?)
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	input.Password = ""
 	s := string(hashBytes)
 
-	err = InsertUser(conn, input.Username, s)
+	err = InsertUser(h.Conn, input.Username, s)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateUsers, "users.Create"))
 	}
 	return nil, err
 
 }
 
 // return nil if password matches
-func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	var loginCred CreateUserInput
 	if err := handlers.DecodeJSON(r, &loginCred); err != nil {
 		return nil, api.BadRequest(errors.New("Invalid login cred"))
 	}
 
-	userID, savedPass, err := FetchUser(conn, loginCred.Username)
+	userID, savedPass, err := FetchUser(h.Conn, loginCred.Username)
 	//TODO change this err message
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, ListUsers))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveUsers, "users.LoginAuth"))
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(savedPass), []byte(loginCred.Password))
@@ -102,13 +106,12 @@ func HandleLoginAuth(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages:  []string{"login successful"},
-		ErrorCode: 0,
+		Messages: []string{"login successful"},
 	}, nil
 
 }
 
-func HandleLogout(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    "",
@@ -121,19 +124,18 @@ func HandleLogout(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*
 	}
 
 	http.SetCookie(w, &cookie)
-	
+
 	return &api.Response{
 		Payload: api.Payload{
 			Data: nil,
 		},
-		Messages:  []string{"logout successful"},
-		ErrorCode: 0,
+		Messages: []string{"logout successful"},
 	}, nil
 }
 
 //Used to check if the user is loggedin based on cookie
 
-func HandleMe(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Me(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -143,7 +145,6 @@ func HandleMe(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages:  []string{"login successful"},
-		ErrorCode: 0,
+		Messages: []string{"login successful"},
 	}, nil
 }

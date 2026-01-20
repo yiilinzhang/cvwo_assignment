@@ -13,17 +13,27 @@ import (
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 )
 
+type Handler struct{ Conn *pgxpool.Pool }
+
 const (
-	ListTopics                  = "topics.HandleList"
-	SuccessfulListTopicsMessage = "Successfully listed topics"
-	ErrRetrieveTopics           = "Failed to retrieve topics in %s"
-	ErrEncodeView               = "Failed to retrieve topics in %s"
+	ListTopics                    = "topics.HandleList"
+	SuccessfulCreateTopicsMessage = "Successfully listed topic"
+	SuccessfulListTopicsMessage   = "Successfully listed topics"
+	SuccessfulUpdateTopicsMessage = "Successfully updated topic"
+	SuccessfulDeleteTopicsMessage = "Successfully deleted topic"
+
+	ErrCreateTopics   = "Failed to create topic in %s"
+	ErrRetrieveTopics = "Failed to retrieve topics in %s"
+	ErrUpdateTopics   = "Failed to update topic in %s"
+	ErrDeleteTopics   = "Failed to delete topic in %s"
+
+	ErrEncodeView = "Failed to encode topics in %s"
 )
 
-func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	topicList, err := ListTopic(conn)
+func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	topicList, err := ListTopic(h.Conn)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, "topics.List"))
 	}
 
 	data, err := json.Marshal(topicList)
@@ -40,10 +50,10 @@ func HandleListTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request
 }
 
 // Delete a specific post from database, requires postid to be passed in via url
-func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	topicID, err := strconv.Atoi(chi.URLParam(r, "topicID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid topicID"))
+		return nil, api.BadRequest(errors.New("invalid topicID"))
 	}
 
 	userID, err := handlers.UserIDFromContext(r)
@@ -56,15 +66,18 @@ func HandleDeleteTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 	input.UserID = userID
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = DeleteTopic(conn, input)
+	_, err = DeleteTopic(h.Conn, input)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrDeleteTopics, "topics.Delete"))
 	}
-	return nil, nil
+	return &api.Response{
+		Payload:  api.Payload{},
+		Messages: []string{SuccessfulDeleteTopicsMessage},
+	}, nil
 }
 
 // Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
-func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -77,9 +90,9 @@ func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 	}
 
 	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newTopic, err := InsertTopic(conn, input)
+	newTopic, err := InsertTopic(h.Conn, input)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveTopics, ListTopics))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateTopics, "topics.Create"))
 	}
 
 	//TODO check if more efficient to not unmardshell
@@ -92,6 +105,6 @@ func HandleInsertTopics(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reque
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages: []string{SuccessfulListTopicsMessage},
+		Messages: []string{SuccessfulCreateTopicsMessage},
 	}, nil
 }

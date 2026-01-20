@@ -9,32 +9,43 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
+
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/handlers"
 )
 
+type Handler struct {
+	Conn *pgxpool.Pool
+}
+
 const (
-	ListPosts                  = "posts.HandleList"
-	SuccessfulListPostsMessage = "Successfully listed posts"
-	ErrRetrievePosts           = "Failed to retrieve posts in %s"
-	ErrEncodeView              = "Failed to retrieve posts in %s"
+	SuccessfulCreatePostsMessage = "Successfully created post"
+	SuccessfulListPostsMessage   = "Successfully listed posts"
+	SuccessfulUpdatePostsMessage = "Successfully updated post"
+	SuccessfulDeletePostsMessage = "Successfully deleted post"
+
+	ErrCreatePosts   = "Failed to create post in %s"
+	ErrRetrievePosts = "Failed to retrieve posts in %s"
+	ErrUpdatePosts   = "Failed to update post in %s"
+	ErrDeletePosts   = "Failed to delete post in %s"
+
+	ErrEncodeView = "Failed to encode posts in %s"
 )
 
-func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-
+func (h *Handler) ListByTopic(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	topicID, err := strconv.Atoi(chi.URLParam(r, "topicID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid topicID"))
+		return nil, api.BadRequest(errors.New("invalid topicID"))
 	}
 
-	postList, err := ListPostByTopic(conn, topicID)
+	postList, err := ListPostByTopic(h.Conn, topicID)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, "posts.ListByTopics"))
 	}
 
 	data, err := json.Marshal(postList)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "posts.ListByTopics"))
 	}
 
 	return &api.Response{
@@ -45,11 +56,10 @@ func HandleListByTopic(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}, nil
 }
 
-// Delete a specific post from database, requires postid to be passed in via url
-func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid postID"))
+		return nil, api.BadRequest(errors.New("invalid postID"))
 	}
 
 	userID, err := handlers.UserIDFromContext(r)
@@ -61,21 +71,22 @@ func HandleDeletePosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	input.PostID = postID
 	input.UserID = userID
 
-	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	_, err = DeletePost(conn, input)
+	_, err = DeletePost(h.Conn, input)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrDeletePosts, "posts.Delete"))
 	}
 
-	return nil, nil
+	return &api.Response{
+		Payload:  api.Payload{},
+		Messages: []string{SuccessfulDeletePostsMessage},
+	}, nil
 }
 
-//Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
 
-func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
-		return nil, api.BadRequest(errors.New("Invalid postID"))
+		return nil, api.BadRequest(errors.New("invalid postID"))
 	}
 
 	var input UpdatePostInput
@@ -89,16 +100,20 @@ func HandleEditPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request)
 
 	input.PostID = postID
 	input.UserID = userID
-	_, err = UpdatePost(conn, input)
+
+	_, err = UpdatePost(h.Conn, input)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrUpdatePosts, "posts.Update"))
+	}
+
 	return &api.Response{
 		Payload:  api.Payload{},
-		Messages: []string{SuccessfulListPostsMessage},
+		Messages: []string{SuccessfulUpdatePostsMessage},
 	}, nil
 
 }
 
-// Check if there is a way to not double declare this in insert post too. Maybe split into 3 and parse here?
-func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
 		return nil, err
@@ -110,35 +125,33 @@ func HandleInsertPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Reques
 	}
 	input.UserID = userID
 
-	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
-	newPost, err := InsertPost(conn, input)
+	newPost, err := InsertPost(h.Conn, input)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreatePosts, "posts.Create"))
 	}
 
-	//TODO check if more efficient to not unmardshell
 	data, err := json.Marshal(newPost)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "posts.Create"))
 	}
 
 	return &api.Response{
 		Payload: api.Payload{
 			Data: data,
 		},
-		Messages: []string{SuccessfulListPostsMessage},
+		Messages: []string{SuccessfulCreatePostsMessage},
 	}, nil
 }
 
-func HandleListAllPosts(conn *pgxpool.Pool, w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	postList, err := ListAllPost(conn)
+func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	postList, err := ListAllPost(h.Conn)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, "posts.List"))
 	}
 
 	data, err := json.Marshal(postList)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, ListPosts))
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "posts.List"))
 	}
 
 	return &api.Response{

@@ -11,7 +11,6 @@ type Payload struct {
 
 type Response struct {
 	Payload   Payload  `json:"payload"`
-	Messages  []string `json:"messages"`
-	ErrorCode int      `json:"errorCode"`
+	Messages  []string `json:"messages,omitempty"`
 }
 
