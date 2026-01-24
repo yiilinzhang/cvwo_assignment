@@ -38,6 +38,18 @@ func ListPostByTopic(conn *pgxpool.Pool, topicID int) ([]QueryPostResponse, erro
 	return post, nil
 }
 
+func ListPostByID(conn *pgxpool.Pool, postID int) (models.Post, error) {
+	var p models.Post
+	query := `SELECT post_id, title, content, user_id, topic_id FROM post WHERE post_id = $1`
+	err := conn.QueryRow(context.Background(), query, postID).
+	Scan(&p.ID, &p.Title, &p.Content, &p.UserID, &p.TopicID)
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	return p, nil
+}
+
 func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	rows, err := conn.Query(
 		context.Background(),
@@ -78,8 +90,6 @@ func DeletePost(conn *pgxpool.Pool, input DeletePostInput) error {
 	}
 	return nil
 }
-
-//TODO doubel check if returning err liek this is okay, shoudl be tho
 
 func InsertPost(conn *pgxpool.Pool, input CreatePostInput) (error) {
 	_, err := conn.Exec(

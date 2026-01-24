@@ -154,3 +154,27 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, e
 		Messages: []string{SuccessfulListPostsMessage},
 	}, nil
 }
+
+func (h *Handler) ListByID(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
+	if err != nil {
+		return nil, api.BadRequest(errors.New("invalid postID"))
+	}
+
+	postList, err := ListPostByID(h.Conn, postID)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrievePosts, "posts.ListByID"))
+	}
+
+	data, err := json.Marshal(postList)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeView, "posts.ListByID"))
+	}
+
+	return &api.Response{
+		Payload: api.Payload{
+			Data: data,
+		},
+		Messages: []string{SuccessfulListPostsMessage},
+	}, nil
+}

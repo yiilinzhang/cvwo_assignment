@@ -26,56 +26,69 @@ type PostItem = {
   content: string;
 };
 
-type PostsResponse = { payload?: { data?: PostItem[] } };
-//Should accept the post details so i can abstract the post id and selet comments
-//TODO chaneg this from cache to a new query
+type PostsResponse = { payload?: { data?: PostItem } };
+
 export default function PostComments({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { userID, isLoading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
+  const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+
   const postID = Number(params.id);
   if (!Number.isFinite(postID)) {
     return <div>Invalid post id.</div>;
   }
+
+  const toggleCollapsed = (commentId: number) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
+
   //Fetch all comments for the particular post
   const { isLoading, data } = useQuery<CommentsResponse>({
-    queryKey: [`comments`, params.id],
+    queryKey: [`comments`, postID],
     queryFn: async () => {
       const response = await axios.get(
-        `http://localhost:8000/posts/${postID}/comments`
+        `http://localhost:8000/posts/${postID}/comments`,
       );
       return await response.data;
     },
   });
-  const cachedPosts = queryClient.getQueryData<PostsResponse>(["posts", "all"]);
+
   const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
     queryKey: [`posts`, postID],
     queryFn: async () => {
-      const url = "http://localhost:8000/posts";
+      const url = `http://localhost:8000/posts/${postID}`;
       const response = await axios.get(url);
 
       return response.data;
     },
-    initialData: cachedPosts,
   });
-
-  const currPost = postData?.payload?.data?.find((p) => p.post_id === postID);
+  const currPost = postData?.payload?.data;
 
   const createComment = useMutation({
-    mutationFn: async (body:{content : String}) =>
+    mutationFn: async (body: { content: string }) =>
       await axios.post(`http://localhost:8000/posts/${postID}/comments`, body, {
         withCredentials: true,
       }),
-    onSuccess: (body ) => {
+    onSuccess: (body) => {
       alert("Successfully created comment.");
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: [`comments`, postID] });
     },
-    onError:()=> {
-      alert("Failed to create comment.")
-    }
+    onError: () => {
+      alert("Failed to create comment.");
+    },
   });
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -86,8 +99,9 @@ export default function PostComments({ params }: Route.ComponentProps) {
       alert("Comment body cannot be empty");
       return;
     }
-    createComment.mutate({content})
+    createComment.mutate({ content });
   };
+
   return (
     <div className="flex flex-col gap-6 py-6 px-20">
       <Button
@@ -110,7 +124,6 @@ export default function PostComments({ params }: Route.ComponentProps) {
         />
       )}
       <hr />
-      {/* TODO check how i should pass in post prop requery or drill */}
       <div className="flex flex-row items-center gap-2">
         {isEditing ? (
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-2">
@@ -165,17 +178,17 @@ export default function PostComments({ params }: Route.ComponentProps) {
           </Button>
         )}
       </div>
-      {/* {data?.payload?.data?.map((comment) => (
-        <Comments
-          key={comment.comment_id}
-          username={comment.name}
-          content={comment.content}
-          isOwner={Number(comment.user_id) === userID}
-          commentID={comment.comment_id}
+      {isLoading ? (
+        <Typography>Loading comments...</Typography>
+      ) : (
+        <CommentsTree
+          comments={data?.payload?.data}
           postID={postID}
+          userID={userID}
+          collapsed={collapsed}
+          onToggleCollapsed={toggleCollapsed}
         />
-      ))} */}
-      <CommentsTree comments={data?.payload?.data} postID={postID} userID={userID}/>
+      )}
     </div>
   );
 }

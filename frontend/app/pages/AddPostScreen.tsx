@@ -9,33 +9,32 @@ type CreatePostBody = {
   title: string;
   content: string;
   topic_id: number;
-}
+};
 
-//Add post page
+//Page where the users can make a new post
 export default function AddPosts() {
-  //TODO use this isloading
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topiclist`],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:8000/topics")
+      const response = await axios.get("http://localhost:8000/topics");
       return response.data;
     },
   });
   const navigate = useNavigate();
 
   const createPost = useMutation({
-    mutationFn: async (body: CreatePostBody) => await axios.post("http://localhost:8000/posts", body, {
+    mutationFn: async (body: CreatePostBody) =>
+      await axios.post("http://localhost:8000/posts", body, {
         withCredentials: true,
-  }),
-  onSuccess:() => {alert("Successfully created post.");
-    navigate("/");
-},
-  onError:() => {
+      }),
+    onSuccess: () => {
+      alert("Successfully created post.");
+      navigate("/");
+    },
+    onError: () => {
       alert("Failed to create post.");
-  },
-  }
-  
-)
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,8 +44,8 @@ export default function AddPosts() {
     const title = String(formData.get("title") || "").trim();
     const content = String(formData.get("content") || "").trim();
     const topicID = Number(formData.get("topic_id"));
-     if (!content || !title || !Number.isFinite(topicID)) return;
-    const body : CreatePostBody = {
+    if (!content || !title || !Number.isFinite(topicID)) return;
+    const body: CreatePostBody = {
       title: title,
       content: content,
       topic_id: topicID,
@@ -57,12 +56,12 @@ export default function AddPosts() {
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-1 items-center py-12">
-        <Typography color="black" fontWeight={500} fontSize="2rem">
+        <Typography color="black" fontWeight={500} fontSize={22}>
           Create a new post today!
         </Typography>
 
         <div className="flex flex-col justify-start gap-2">
-          <Typography fontWeight={500} fontSize="1.5rem">
+          <Typography fontWeight={500} fontSize={18}>
             Topic
           </Typography>
 
@@ -72,15 +71,20 @@ export default function AddPosts() {
             size="small"
             sx={{ width: 160 }}
             required
+            disabled={isLoading}
           >
-            {data?.payload?.data?.map((title) => (
-              <MenuItem key={title.topic_id} value={title.topic_id}>
-                {title.title}
-              </MenuItem>
-            ))}
+            {isLoading ? (
+              <MenuItem>Loading topics....</MenuItem>
+            ) : (
+              data?.payload?.data?.map((title) => (
+                <MenuItem key={title.topic_id} value={title.topic_id}>
+                  {title.title}
+                </MenuItem>
+              ))
+            )}
           </TextField>
 
-          <Typography fontWeight={500} fontSize="1.5rem">
+          <Typography fontWeight={500} fontSize={18}>
             Title
           </Typography>
           <TextField
@@ -96,7 +100,7 @@ export default function AddPosts() {
             sx={{ width: 300 }}
           />
 
-          <Typography fontWeight={500} fontSize="1.5rem">
+          <Typography fontWeight={500} fontSize={18}>
             Content
           </Typography>
           <TextField
@@ -116,7 +120,9 @@ export default function AddPosts() {
           sx={{ background: "#9BE3FF", mt: 2 }}
           disabled={createPost.isPending}
         >
-          <Typography sx={{ fontSize: "20px" }}>{createPost.isPending ? "Posting...": "Post now!"}</Typography>
+          <Typography fontSize={18}>
+            {createPost.isPending ? "Posting..." : "Post now!"}
+          </Typography>
         </Button>
       </div>
     </form>

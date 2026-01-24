@@ -13,10 +13,10 @@ type PostItem = {
   user_id: number;
 };
 
-type PostsResponse = {payload?: {data?: PostItem[]}}
+type PostsResponse = { payload?: { data?: PostItem[] } };
 
-type Topic = {topic_id: number; title: string}
-type TopicsResponse = {payload?: {data?: Topic[]}}
+type Topic = { topic_id: number; title: string };
+type TopicsResponse = { payload?: { data?: Topic[] } };
 export default function Posts() {
   const { id } = useParams();
 
@@ -26,21 +26,24 @@ export default function Posts() {
     queryKey: [`posts`, id ?? "all"],
     queryFn: async () => {
       const url = id
-        ? `http://localhost:8000/posts/${id}`
-        : "http://localhost:8000/posts";
+        ? `http://localhost:8000/posts/topics/${id}`
+        : "http://localhost:8000/posts/topics";
       const response = await axios.get(url);
 
       return response.data;
     },
   });
-  const topics = queryClient.getQueryData<TopicsResponse>(["topics"])?.payload?.data;
+  const topics = queryClient.getQueryData<TopicsResponse>(["topics"])?.payload
+    ?.data;
 
   const currTopic = topics?.find((t) => t.topic_id === Number(id))?.title;
   return (
     <div className="flex flex-col items-center gap-8 py-6 px-20 h-screen">
-      <Typography >
-        {currTopic || "All Topics"}
-      </Typography>
+      <div className="w-full ">
+        <Typography fontSize={22} fontWeight={500} sx={{ justifyContent: "flex-start" }}>
+          {currTopic || "All Topics"}
+        </Typography>
+      </div>
 
       {postData?.payload?.data?.length === 0 ? (
         <div className="w-full flex items-center justify-center flex-col pt-40 ">

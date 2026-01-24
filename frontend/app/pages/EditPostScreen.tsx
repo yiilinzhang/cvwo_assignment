@@ -14,7 +14,6 @@ type PostItem = {
 }
 
 type PostResponse = { payload?: {data?: PostItem[]}}
-//TODO use MUI alert for a prettier alert
 export default function EditPosts({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();

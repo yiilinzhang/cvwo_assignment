@@ -13,12 +13,11 @@ type SignUpBody = {
 export default function SignUpPage() {
   const navigate = useNavigate();
 
-  //TODO update type
   const signup = useMutation({
     mutationFn: async (body: SignUpBody) => {
       await axios.post("http://localhost:8000/users", body)
     },
-    onSuccess: () => {//TODO add code to save jwt
+    onSuccess: () => {
     alert("Successfully created account.");
     navigate("/");},
     onError: () => {

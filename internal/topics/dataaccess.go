@@ -36,9 +36,6 @@ func InsertTopic(conn *pgxpool.Pool, input CreateTopicInput) error {
 		input.Title,
 		input.UserID,
 	)
-	//TODO check if i need this or no error is nil
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }

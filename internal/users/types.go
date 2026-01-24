@@ -5,12 +5,6 @@ type CreateUserInput struct {
 	Password string `json:"password"`;
 }
 
-//Used in authentication JWT token res
-//TODO depreciated delate
-type LoginResponse struct {
-	Token string `json:"token"`
-}
-
 type UserAuth struct {
 	UserID string;
 	PasswordHash string;

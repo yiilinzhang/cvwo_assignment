@@ -4,7 +4,6 @@ import { Button, Typography, TextField } from "@mui/material";
 import { type FormEvent } from "react";
 import axios from "axios";
 
-//TODO use MUI alert for a prettier alert
 export default function AddTopics() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -37,12 +36,12 @@ export default function AddTopics() {
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-12 items-center py-12 ">
-        <Typography color="black" fontWeight={500} fontSize="2rem">
+        <Typography color="black" fontWeight={500} fontSize={22}>
           Create a new Topic today!
         </Typography>
 
         <div className="flex flex-col justify-start gap-2">
-          <Typography fontWeight={500} fontSize="1.5rem">
+          <Typography fontWeight={500} fontSize={18}>
             Title
           </Typography>
           <TextField

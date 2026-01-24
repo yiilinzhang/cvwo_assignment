@@ -31,8 +31,7 @@ func setUpRoutes(r chi.Router, conn *pgxpool.Pool) {
 	usersHandler := &users.Handler{Conn: conn}
 	topicsHandler := &topics.Handler{Conn: conn}
 	commentsHandler := &comments.Handler{Conn: conn}
-	//TODO use grpoup later when i add login auth
-	//Private toutes
+	
 	r.Group(routes.PrivateRoutes(postsHandler, usersHandler, topicsHandler, commentsHandler))
 	r.Group(routes.PublicRoutes(postsHandler, usersHandler, topicsHandler, commentsHandler))
 }

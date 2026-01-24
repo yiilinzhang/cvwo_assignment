@@ -32,7 +32,6 @@ func PrivateRoutes(
 			r.Use(jwtauth.Authenticator(auth.TokenAuth))
 
 			r.Get("/me", Routing(usersHandler.Me))
-			//TODO combine with queryparams
 			r.Get("/users", Routing(usersHandler.List))
 
 			r.Post("/posts", Routing(postsHandler.Create))
@@ -61,8 +60,9 @@ func PublicRoutes(postsHandler *posts.Handler,
 		r.Post("/logout", Routing(usersHandler.Logout))
 		r.Post("/users", Routing(usersHandler.Create))
 
-		r.Get("/posts/{topicID}", Routing(postsHandler.ListByTopic))
-		r.Get("/posts", Routing(postsHandler.List))
+		r.Get("/posts/topics/{topicID}", Routing(postsHandler.ListByTopic))
+		r.Get("/posts/topics", Routing(postsHandler.List))
+		r.Get("/posts/{postID}", Routing(postsHandler.ListByID))
 
 		r.Get("/topics", Routing(topicsHandler.List))
 
@@ -70,8 +70,6 @@ func PublicRoutes(postsHandler *posts.Handler,
 	}
 }
 
-// Routing Wraps handlers to fmt JSON reponses and ... smth about handle error change when completed todo
-// TODO error messgaes giges too mcuh into i think
 func Routing(HandleList HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

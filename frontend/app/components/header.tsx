@@ -64,12 +64,11 @@ export function Header() {
       <div className="h-20 bg-[#9BE3FF] ps-4 flex items-center gap-4">
         <SideBar topicsList={data?.payload?.data} />
         <Link to="/">
-          <Typography fontWeight={500} color="white" fontSize={46}>
+          <Typography fontWeight={500} color="white" fontSize={37}>
             CVWO
           </Typography>
         </Link>
         <div className="w-full flex justify-end px-4">
-          {/* TODO impmenet my post */}
           {userID ? (
             <>
               <IconButton

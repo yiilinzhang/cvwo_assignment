@@ -2,6 +2,8 @@ import {
   PencilSimpleLineIcon,
   TrashIcon,
   ArrowBendUpLeftIcon,
+  CaretDownIcon,
+  CaretRightIcon
 } from "@phosphor-icons/react";
 import { Button, IconButton, TextField, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,12 +16,15 @@ type CommentProps = {
   isOwner: boolean;
   commentID: number;
   postID: number;
+  hasChildren: boolean;
+  isCollapsed: boolean;
+  onToggleCollapsed: () => void;
 };
 
-type CreateCommentBody = { 
-  content: string; 
+type CreateCommentBody = {
+  content: string;
   parent_comment_id?: number;
-}
+};
 
 //DO NOT call by itself. Use CommentsTree instead.
 export function CommentItem({
@@ -28,6 +33,9 @@ export function CommentItem({
   isOwner,
   commentID,
   postID,
+  hasChildren,
+  isCollapsed,
+  onToggleCollapsed,
 }: CommentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -103,7 +111,7 @@ export function CommentItem({
   });
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col p-4 gap">
-      <Typography fontWeight={600} fontSize={20}>
+      <Typography fontWeight={600} fontSize={17}>
         {username}
       </Typography>
       {isEditing ? (
@@ -151,7 +159,7 @@ export function CommentItem({
         </form>
       ) : (
         <>
-          <Typography fontSize={20}>{content}</Typography>
+          <Typography>{content}</Typography>
           {isReplying && (
             <form onSubmit={replyComment}>
               <TextField
@@ -195,7 +203,13 @@ export function CommentItem({
               </div>
             </form>
           )}
-          <div className={`flex justify-end ${isReplying ? "hidden" : ""}`}>
+          <div className={`flex ${hasChildren? "justify-between": "justify-end"} ${isReplying ? "hidden" : ""}`}>
+            {hasChildren && (
+            <IconButton onClick={onToggleCollapsed}>
+              {isCollapsed? <CaretDownIcon color="black"/>: <CaretRightIcon color="black"/>}
+            </IconButton>
+          )}
+          <div className="flex flex-row">
             <IconButton
               aria-label="comment"
               onClick={() => setIsReplying(true)}
@@ -203,7 +217,7 @@ export function CommentItem({
               <ArrowBendUpLeftIcon size={27} color="black" />
             </IconButton>
 
-            {isOwner && !isReplying ? (
+            {isOwner && !isReplying && (
               <div>
                 <IconButton
                   aria-label="edit_comment"
@@ -219,9 +233,7 @@ export function CommentItem({
                   <TrashIcon size={27} color="black" />
                 </IconButton>
               </div>
-            ) : (
-              <></>
-            )}
+            )}</div>
           </div>
         </>
       )}

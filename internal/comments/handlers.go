@@ -146,11 +146,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 	}
 
 	var input CreateCommentInput
-	input.UserID = userID
-	input.PostID = postID
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
+	input.UserID = userID
+	input.PostID = postID
 
 	if input.Content == "" {
 		return nil, api.BadRequest(errors.New("content cannot be empty"))

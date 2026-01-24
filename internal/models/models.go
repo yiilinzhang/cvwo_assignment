@@ -14,9 +14,6 @@ type Topic struct {
 	UserID int    `json:"user_id"`
 }
 
-// What i want returned, user.username, post.content, post.title, comment.content, comment.id
-// TODO add required userID later when login implemented
-// TODO look into implementing struc validaiton maybe with the payground validate
 // Represents a post under a topic
 type Post struct {
 	ID      int    `json:"post_id"`

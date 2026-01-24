@@ -34,8 +34,8 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
 
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col py-3 px-4 gap">
-      <Typography className="text-xl font-semibold">{title}</Typography>
-      <Typography className="text-xl ">{content}</Typography>
+      <Typography fontSize={17} fontWeight={450}>{title}</Typography>
+      <Typography >{content}</Typography>
       <div className="flex justify-end">
        {showChat &&
         <IconButton

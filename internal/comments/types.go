@@ -1,6 +1,5 @@
 package comments
 
-// TODO some of them dont need json it hink
 type CreateCommentInput struct {
 	Content  string `json:"content"`
 	UserID   int    `json:"user_id"`
