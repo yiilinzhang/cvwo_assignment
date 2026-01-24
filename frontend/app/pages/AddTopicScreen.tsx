@@ -3,10 +3,12 @@ import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
 import { type FormEvent } from "react";
 import axios from "axios";
+import { useToast } from "~/components/ToastProvider";
 
 export default function AddTopics() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const toast = useToast()
   const addTopics = useMutation({
     mutationFn: async (body: {title: string}) =>
       await axios.post("http://localhost:8000/topics", body, {
@@ -14,10 +16,10 @@ export default function AddTopics() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["topics"] });
-      alert("Successfully created topic.");
+      toast("Successfully created topic.", "success");
       navigate("/");
     },
-    onError: () => alert("Failed to create topic."),
+    onError: () => toast("Failed to create topic.", "error"),
   });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -27,7 +29,7 @@ export default function AddTopics() {
     const formData = new FormData(form);
     const title = String(formData.get("title") || "").trim()
     if (!title) {
-      alert("Title cannot be empty");
+      toast("Title cannot be empty", "error");
       return;
     }
     addTopics.mutate({title})

@@ -9,6 +9,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/PostCommentsScreen.$id";
 import { CommentsTree } from "~/components/CommentsTree";
+import { useToast } from "~/components/ToastProvider";
 
 type Comment = {
   comment_id: number;
@@ -34,6 +35,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+  const toast = useToast()
 
   const postID = Number(params.id);
   if (!Number.isFinite(postID)) {
@@ -80,12 +82,12 @@ export default function PostComments({ params }: Route.ComponentProps) {
         withCredentials: true,
       }),
     onSuccess: (body) => {
-      alert("Successfully created comment.");
+      toast("Successfully created comment.", "success");
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: [`comments`, postID] });
     },
     onError: () => {
-      alert("Failed to create comment.");
+      toast("Failed to create comment.", "error");
     },
   });
 
@@ -96,7 +98,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
     const formData = new FormData(form);
     const content = String(formData.get("comment") || "").trim();
     if (!content) {
-      alert("Comment body cannot be empty");
+      toast("Comment body cannot be empty", "error");
       return;
     }
     createComment.mutate({ content });
@@ -170,7 +172,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
             disableRipple
             sx={{ color: "black", borderColor: "black", borderRadius: 20 }}
             onClick={() => {
-              userID ? setIsEditing(true) : alert("login to leave a comment");
+              userID ? setIsEditing(true) : toast("Login to leave a comment", "info");
             }}
           >
             <PlusIcon />

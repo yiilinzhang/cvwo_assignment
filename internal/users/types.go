@@ -6,6 +6,6 @@ type CreateUserInput struct {
 }
 
 type UserAuth struct {
-	UserID string;
+	UserID int;
 	PasswordHash string;
 }

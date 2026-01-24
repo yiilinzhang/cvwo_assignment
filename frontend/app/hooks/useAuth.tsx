@@ -13,7 +13,7 @@ export function useAuth() {
     },
     retry: false,
     refetchOnWindowFocus: false,
-    staleTime: 60 * 10 * 1000
+    staleTime: 60 * 10 * 1000,
   });
 
   return {

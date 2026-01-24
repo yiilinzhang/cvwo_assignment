@@ -7,8 +7,7 @@ import { IconButton, Typography } from "@mui/material";
 import { Link } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-
-
+import { useToast } from "~/components/ToastProvider";
 
 type PostProps = {
   id: number;
@@ -29,9 +28,10 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
     },
     onSuccess: () =>{ 
        queryClient.invalidateQueries({ queryKey: ['posts'] });
-       alert("Post sucessfully deleted")}
+       toast("Post sucessfully deleted", "success")}
   })
 
+  const toast = useToast()
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col py-3 px-4 gap">
       <Typography fontSize={17} fontWeight={450}>{title}</Typography>

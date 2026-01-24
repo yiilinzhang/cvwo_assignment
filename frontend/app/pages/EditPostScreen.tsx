@@ -4,6 +4,7 @@ import { Button, Typography, TextField } from "@mui/material";
 import axios from "axios";
 import type { Route } from "./+types/EditPostScreen";
 import type { FormEvent } from "react";
+import { useToast } from "~/components/ToastProvider";
 
 type PostItem = {
   post_id: number;
@@ -19,6 +20,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   const queryClient = useQueryClient();
   const cachedPosts = queryClient.getQueryData<PostResponse>(["posts", "all"]);
   const postID = params?.id;
+  const toast = useToast()
 
   const { isLoading, data: postData } = useQuery<PostResponse>({
     queryKey: [`posts`, "all"],
@@ -49,10 +51,10 @@ export default function EditPosts({ params }: Route.ComponentProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      alert("Successfully edited post.");
+      toast("Successfully edited post.", "success");
       navigate(-1);
     },
-    onError: () => alert("Failed to edit post."),
+    onError: () => toast("Failed to edit post.", "error"),
   });
 
   return (

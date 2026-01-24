@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useToast } from "~/components/ToastProvider";
 
 type LogInBody = {
   username: string;
@@ -13,7 +14,8 @@ type LogInBody = {
 export default function LoginPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
+  const toast = useToast()
+  
   const login = useMutation({
     mutationFn: async (body: LogInBody) => {
       await axios.post("http://localhost:8000/login", body, {
@@ -21,11 +23,12 @@ export default function LoginPage() {
       });
     },
     onSuccess: () => {
-      alert("Successfully logged in.");
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      toast("Successfully logged in.", "success");
       navigate("/");
     },
     onError: () => {
-      alert("Failed to login account.");
+      toast("Failed to login account.", "error");
     },
   });
 
@@ -37,7 +40,7 @@ export default function LoginPage() {
     const username = String(formData.get("username") || "").trim()
     const password = String(formData.get("password") || "").trim()
     if (!username || !password) {
-      alert("Username and password cannot be empty");
+      toast("Username and password cannot be empty", "error");
       return;
     }
     const body = {

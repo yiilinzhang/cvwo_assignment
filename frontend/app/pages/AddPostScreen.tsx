@@ -2,6 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField, MenuItem } from "@mui/material";
 import axios from "axios";
+import { useToast } from "~/components/ToastProvider";
+
 type Topic = { topic_id: number; title: string };
 type TopicsResponse = { payload?: { data?: Topic[] } };
 
@@ -13,6 +15,7 @@ type CreatePostBody = {
 
 //Page where the users can make a new post
 export default function AddPosts() {
+  const toast = useToast()
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topiclist`],
     queryFn: async () => {
@@ -28,11 +31,11 @@ export default function AddPosts() {
         withCredentials: true,
       }),
     onSuccess: () => {
-      alert("Successfully created post.");
+      toast("Successfully created post.", "success");
       navigate("/");
     },
     onError: () => {
-      alert("Failed to create post.");
+      toast("Failed to create post.", "error");
     },
   });
 

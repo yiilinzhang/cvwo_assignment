@@ -7,6 +7,7 @@ import { Button, IconButton, Typography, Menu, MenuItem } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
 import { useState, type MouseEvent } from "react";
 import axios from "axios";
+import { useToast } from "~/components/ToastProvider";
 
 type Topic = { topic_id: number; title: string; user_id: number };
 type TopicsResponse = { payload?: { data?: Topic[] } };
@@ -22,6 +23,8 @@ export function Header() {
     const response = await axios.get("http://localhost:8000/topics");
     return response.data;
   };
+
+  const toast = useToast()
 
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topics`],
@@ -51,11 +54,11 @@ export function Header() {
       }),
     onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["me"] });
-        alert("Successfully logged out.");
+        toast("Successfully logged out.", "success");
         handleUserClose();
         navigate("/");
       },
-    onError: () => alert("Failed to logout"),
+    onError: () => toast("Failed to logout", "error"),
   });
   
   if (isLoading || userLoading) return <div>Loading...</div>;

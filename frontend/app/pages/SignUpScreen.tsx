@@ -4,6 +4,7 @@ import axios from "axios";
 import type { FormEvent } from "react";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
+import { useToast } from "~/components/ToastProvider";
 
 type SignUpBody = {
   username: string;
@@ -12,16 +13,17 @@ type SignUpBody = {
 
 export default function SignUpPage() {
   const navigate = useNavigate();
+  const toast = useToast()
 
   const signup = useMutation({
     mutationFn: async (body: SignUpBody) => {
       await axios.post("http://localhost:8000/users", body)
     },
     onSuccess: () => {
-    alert("Successfully created account.");
+    toast("Successfully created account.", "success");
     navigate("/");},
     onError: () => {
-      alert("Failed to create account.");
+      toast("Failed to create account.", "error");
     }
   }) 
 
@@ -32,7 +34,7 @@ export default function SignUpPage() {
     const username = String(formData.get("username") || "").trim()
     const password = String(formData.get("password") || "").trim()
     if (!username || !password) {
-      alert("Username and password cannot be empty");
+      toast("Username and password cannot be empty", "error");
       return;
     }
     const body = {

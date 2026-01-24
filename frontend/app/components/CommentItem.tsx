@@ -3,12 +3,13 @@ import {
   TrashIcon,
   ArrowBendUpLeftIcon,
   CaretDownIcon,
-  CaretRightIcon
+  CaretRightIcon,
 } from "@phosphor-icons/react";
 import { Button, IconButton, TextField, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState, type FormEvent } from "react";
+import { useToast } from "~/components/ToastProvider";
 
 type CommentProps = {
   username: string;
@@ -41,7 +42,7 @@ export function CommentItem({
   const [isReplying, setIsReplying] = useState(false);
 
   const queryClient = useQueryClient();
-
+  const toast = useToast();
   const createComment = useMutation({
     mutationFn: async (body: CreateCommentBody) =>
       await axios.post(`http://localhost:8000/posts/${postID}/comments`, body, {
@@ -49,13 +50,13 @@ export function CommentItem({
       }),
 
     onSuccess: () => {
-      alert("Successfully replied comment.");
+      toast("Successfully replied comment.", "success");
       setIsReplying(false);
       queryClient.invalidateQueries({ queryKey: [`comments`, postID] });
     },
 
     onError: () => {
-      alert("Failed to create reply.");
+      toast("Failed to create reply.", "error");
     },
   });
   const replyComment = async (e: FormEvent<HTMLFormElement>) => {
@@ -64,7 +65,7 @@ export function CommentItem({
     const formData = new FormData(form);
     const content = String(formData.get("reply") || "").trim();
     if (!content) {
-      alert("Reply cannot be empty");
+      toast("Reply cannot be empty", "error");
       return;
     }
     createComment.mutate({ content: content, parent_comment_id: commentID });
@@ -79,10 +80,10 @@ export function CommentItem({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postID] });
       setIsEditing(false);
-      alert("Successfully edited comment.");
+      toast("Successfully edited comment.", "success");
     },
 
-    onError: () => alert("Failed to edit comment."),
+    onError: () => toast("Failed to edit comment.", "error"),
   });
 
   const editComment = async (e: FormEvent<HTMLFormElement>) => {
@@ -91,7 +92,7 @@ export function CommentItem({
     const formData = new FormData(form);
     const content = String(formData.get("comment") || "").trim();
     if (!content) {
-      alert("Comment cannot be empty");
+      toast("Comment cannot be empty", "error");
       return;
     }
     updateComment.mutate({ content });
@@ -106,7 +107,7 @@ export function CommentItem({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postID] });
 
-      alert("Comment sucessfully deleted");
+      toast("Comment sucessfully deleted", "success");
     },
   });
   return (
@@ -203,37 +204,44 @@ export function CommentItem({
               </div>
             </form>
           )}
-          <div className={`flex ${hasChildren? "justify-between": "justify-end"} ${isReplying ? "hidden" : ""}`}>
+          <div
+            className={`flex ${hasChildren ? "justify-between" : "justify-end"} ${isReplying ? "hidden" : ""}`}
+          >
             {hasChildren && (
-            <IconButton onClick={onToggleCollapsed}>
-              {isCollapsed? <CaretDownIcon color="black"/>: <CaretRightIcon color="black"/>}
-            </IconButton>
-          )}
-          <div className="flex flex-row">
-            <IconButton
-              aria-label="comment"
-              onClick={() => setIsReplying(true)}
-            >
-              <ArrowBendUpLeftIcon size={27} color="black" />
-            </IconButton>
+              <IconButton onClick={onToggleCollapsed}>
+                {isCollapsed ? (
+                  <CaretDownIcon color="black" />
+                ) : (
+                  <CaretRightIcon color="black" />
+                )}
+              </IconButton>
+            )}
+            <div className="flex flex-row">
+              <IconButton
+                aria-label="comment"
+                onClick={() => setIsReplying(true)}
+              >
+                <ArrowBendUpLeftIcon size={27} color="black" />
+              </IconButton>
 
-            {isOwner && !isReplying && (
-              <div>
-                <IconButton
-                  aria-label="edit_comment"
-                  onClick={() => setIsEditing(true)}
-                >
-                  <PencilSimpleLineIcon size={27} color="black" />
-                </IconButton>
+              {isOwner && !isReplying && (
+                <div>
+                  <IconButton
+                    aria-label="edit_comment"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <PencilSimpleLineIcon size={27} color="black" />
+                  </IconButton>
 
-                <IconButton
-                  aria-label="delete_comment"
-                  onClick={() => deleteComment.mutate()}
-                >
-                  <TrashIcon size={27} color="black" />
-                </IconButton>
-              </div>
-            )}</div>
+                  <IconButton
+                    aria-label="delete_comment"
+                    onClick={() => deleteComment.mutate()}
+                  >
+                    <TrashIcon size={27} color="black" />
+                  </IconButton>
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
