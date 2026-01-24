@@ -23,6 +23,10 @@ Next, run the follow command at the root and configure the JWT_SECRET and the DA
 
 $ cp .env.example .env 
 
+To get a JWT secret:
+$ openssl rand -base64 32
+Paste this in the env file. 
+
 To start the backend, run 
 $ go run cmd/server/main.go.
 
