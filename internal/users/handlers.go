@@ -99,8 +99,7 @@ func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Respon
 		Path:     "/",
 		MaxAge:   604800,
 		HttpOnly: true,
-		//TODO Need to change this in prod to true
-		Secure:   false,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
 
@@ -120,8 +119,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) (*api.Response,
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
-		//TODO Need to change this in prod to true
-		Secure:   false,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
 

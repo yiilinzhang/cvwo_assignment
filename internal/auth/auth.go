@@ -12,10 +12,7 @@ import (
 var TokenAuth *jwtauth.JWTAuth
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-    log.Fatal("Error loading .env file")
-  }
+	_ = godotenv.Load()
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
   log.Fatal("JWT_SECRET not set")
