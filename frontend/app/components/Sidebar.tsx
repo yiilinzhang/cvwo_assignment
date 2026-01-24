@@ -48,12 +48,6 @@ export function SideBar({ topicsList = [] }: { topicsList?: Topic[] }) {
             >
               <Typography fontSize={17}>Home</Typography>
             </Button>
-            <Button
-              startIcon={<ArrowCircleUpRightIcon />}
-              sx={sidebarItem}
-            >
-              <Typography fontSize={17}>Popular</Typography>
-            </Button>
 
             <hr />
             {topicsList.map((item) => {
