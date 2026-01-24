@@ -19,7 +19,8 @@ func ListPostByTopic(conn *pgxpool.Pool, topicID int) ([]QueryPostResponse, erro
 		FROM post 
 		INNER JOIN topic
 			ON post.topic_id = topic.topic_id
-		WHERE post.topic_id = $1`
+		WHERE post.topic_id = $1
+		ORDER BY post.post_id DESC`
 	rows, err := conn.Query(context.Background(), query, topicID)
 	if err != nil {
 		return nil, err
@@ -54,7 +55,8 @@ func ListAllPost(conn *pgxpool.Pool) ([]models.Post, error) {
 	rows, err := conn.Query(
 		context.Background(),
 		`SELECT post_id, title, content, user_id, topic_id
-		FROM post`,
+		FROM post
+		ORDER BY post_id DESC`,
 	)
 	if err != nil {
 		return nil, err

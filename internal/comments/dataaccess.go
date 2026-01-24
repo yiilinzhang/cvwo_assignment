@@ -37,7 +37,7 @@ func ListCommentByPost(conn *pgxpool.Pool, postID int) ([]QueryCommentResponse, 
 		INNER JOIN users u
 			ON c.user_id = u.userid
 		WHERE c.post_id = $1
-		ORDER BY c.comment_id ASC`,
+		ORDER BY c.comment_id DESC`,
 		postID,
 	)
 	if err != nil {
