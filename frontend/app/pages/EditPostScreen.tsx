@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
-import axios from "axios";
+import { api } from "~/lib/api";
 import type { Route } from "./+types/EditPostScreen";
 import type { FormEvent } from "react";
 import { useToast } from "~/components/ToastProvider";
@@ -28,7 +28,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   const { isLoading, data: postData } = useQuery<PostResponse>({
     queryKey: [`posts`, "all"],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:8000/posts")
+      const response = await api.get("/posts")
       return response.data
     },
     initialData: cachedPosts,
@@ -37,7 +37,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   const { data: topicsData } = useQuery<TopicsResponse>({
     queryKey: ["topics"],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:8000/topics");
+      const response = await api.get("/topics");
       return response.data;
     },
     initialData: cachedTopics,
@@ -60,9 +60,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
   };
   const updatePost = useMutation({
     mutationFn: async (body: {content: string}) => {
-      await axios.patch(`http://localhost:8000/posts/${postID}`, body, {
-        withCredentials: true,
-      });
+      await api.patch(`/posts/${postID}`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });

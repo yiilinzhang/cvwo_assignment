@@ -5,7 +5,7 @@ import { useAuth } from "~/hooks/useAuth";
 import { Button, TextField, Typography } from "@mui/material";
 import { PlusIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 import { useState, type FormEvent } from "react";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/PostCommentsScreen.$id";
 import { CommentsTree } from "~/components/CommentsTree";
@@ -58,9 +58,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
   const { isLoading, data } = useQuery<CommentsResponse>({
     queryKey: [`comments`, postID],
     queryFn: async () => {
-      const response = await axios.get(
-        `http://localhost:8000/posts/${postID}/comments`,
-      );
+      const response = await api.get(`/posts/${postID}/comments`);
       return await response.data;
     },
   });
@@ -68,8 +66,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
   const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
     queryKey: [`posts`, postID],
     queryFn: async () => {
-      const url = `http://localhost:8000/posts/${postID}`;
-      const response = await axios.get(url);
+      const response = await api.get(`/posts/${postID}`);
 
       return response.data;
     },
@@ -78,9 +75,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
 
   const createComment = useMutation({
     mutationFn: async (body: { content: string }) =>
-      await axios.post(`http://localhost:8000/posts/${postID}/comments`, body, {
-        withCredentials: true,
-      }),
+      await api.post(`/posts/${postID}/comments`, body),
     onSuccess: (body) => {
       toast("Successfully created comment.", "success");
       setIsEditing(false);

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField } from "@mui/material";
 import { type FormEvent } from "react";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useToast } from "~/components/ToastProvider";
 
 export default function AddTopics() {
@@ -11,9 +11,7 @@ export default function AddTopics() {
   const toast = useToast()
   const addTopics = useMutation({
     mutationFn: async (body: {title: string}) =>
-      await axios.post("http://localhost:8000/topics", body, {
-        withCredentials: true,
-      }),
+      await api.post("/topics", body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["topics"] });
       toast("Successfully created topic.", "success");

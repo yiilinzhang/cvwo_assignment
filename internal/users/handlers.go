@@ -100,7 +100,7 @@ func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Respon
 		MaxAge:   604800,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	}
 
 	http.SetCookie(w, &cookie)
@@ -120,7 +120,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) (*api.Response,
 		MaxAge:   -1,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	}
 
 	http.SetCookie(w, &cookie)

@@ -7,7 +7,7 @@ import {
 } from "@phosphor-icons/react";
 import { Button, IconButton, TextField, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useState, type FormEvent } from "react";
 import { useToast } from "~/components/ToastProvider";
 import { useAuth } from "~/hooks/useAuth";
@@ -47,9 +47,7 @@ export function CommentItem({
   const toast = useToast();
   const createComment = useMutation({
     mutationFn: async (body: CreateCommentBody) =>
-      await axios.post(`http://localhost:8000/posts/${postID}/comments`, body, {
-        withCredentials: true,
-      }),
+      await api.post(`/posts/${postID}/comments`, body),
 
     onSuccess: () => {
       toast("Successfully replied comment.", "success");
@@ -75,9 +73,7 @@ export function CommentItem({
 
   const updateComment = useMutation({
     mutationFn: async (body: { content: string }) => {
-      await axios.patch(`http://localhost:8000/comments/${commentID}`, body, {
-        withCredentials: true,
-      });
+      await api.patch(`/comments/${commentID}`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postID] });
@@ -102,9 +98,7 @@ export function CommentItem({
 
   const deleteComment = useMutation({
     mutationFn: async () => {
-      await axios.delete(`http://localhost:8000/comments/${commentID}`, {
-        withCredentials: true,
-      });
+      await api.delete(`/comments/${commentID}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postID] });

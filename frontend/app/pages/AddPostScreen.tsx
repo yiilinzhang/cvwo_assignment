@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Button, Typography, TextField, MenuItem } from "@mui/material";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useToast } from "~/components/ToastProvider";
 
 type Topic = { topic_id: number; title: string };
@@ -19,7 +19,7 @@ export default function AddPosts() {
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topiclist`],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:8000/topics");
+      const response = await api.get("/topics");
       return response.data;
     },
   });
@@ -27,9 +27,7 @@ export default function AddPosts() {
 
   const createPost = useMutation({
     mutationFn: async (body: CreatePostBody) =>
-      await axios.post("http://localhost:8000/posts", body, {
-        withCredentials: true,
-      }),
+      await api.post("/posts", body),
     onSuccess: () => {
       toast("Successfully created post.", "success");
       navigate("/");

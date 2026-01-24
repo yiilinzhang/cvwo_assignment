@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { Link } from "react-router";
 import { type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useToast } from "~/components/ToastProvider";
 
 type LogInBody = {
@@ -18,9 +18,7 @@ export default function LoginPage() {
   
   const login = useMutation({
     mutationFn: async (body: LogInBody) => {
-      await axios.post("http://localhost:8000/login", body, {
-        withCredentials: true,
-      });
+      await api.post("/login", body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import { Button, IconButton, Typography, Menu, MenuItem } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
 import { useState, type MouseEvent } from "react";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useToast } from "~/components/ToastProvider";
 
 type Topic = { topic_id: number; title: string; user_id: number };
@@ -20,7 +20,7 @@ export function Header() {
   const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
   const [addAnchorEl, setAddAnchorEl] = useState<HTMLElement | null>(null);
   const getTopics = async (): Promise<TopicsResponse> => {
-    const response = await axios.get("http://localhost:8000/topics");
+    const response = await api.get("/topics");
     return response.data;
   };
 
@@ -49,9 +49,7 @@ export function Header() {
 
   const logout = useMutation({
     mutationFn: async () =>
-      await axios.post("http://localhost:8000/logout", null, {
-        withCredentials: true
-      }),
+      await api.post("/logout", null),
     onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["me"] });
         toast("Successfully logged out.", "success");

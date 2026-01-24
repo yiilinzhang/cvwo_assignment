@@ -6,7 +6,7 @@ import {
 import { IconButton, Typography } from "@mui/material";
 import { Link } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "~/lib/api";
 import { useToast } from "~/components/ToastProvider";
 
 type PostProps = {
@@ -22,9 +22,7 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
  const queryClient = useQueryClient();
   const deletePost = useMutation({
     mutationFn: async () => {
-      await axios.delete(`http://localhost:8000/posts/${id}`,
-        {withCredentials: true}
-      );
+      await api.delete(`/posts/${id}`);
     },
     onSuccess: () =>{ 
        queryClient.invalidateQueries({ queryKey: ['posts'] });

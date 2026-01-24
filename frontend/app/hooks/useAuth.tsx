@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
-import axios from "axios";
+import { api } from "~/lib/api";
 
 type UserResponse = { payload?: { data?: number } };
 //Custom hook to check if user is authenticated + username
@@ -9,8 +9,7 @@ export function useAuth() {
   const { isLoading, data, isError } = useQuery<UserResponse>({
     queryKey: ["me"],
     queryFn: async () => {
-      const url = "http://localhost:8000/me";
-      const response = await axios.get(url, { withCredentials: true });
+      const response = await api.get("/me");
       return await response.data;
     },
     retry: false,

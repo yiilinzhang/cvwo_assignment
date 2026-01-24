@@ -1,6 +1,6 @@
 import { Button, Typography, TextField } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "~/lib/api";
 import type { FormEvent } from "react";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
@@ -17,7 +17,7 @@ export default function SignUpPage() {
 
   const signup = useMutation({
     mutationFn: async (body: SignUpBody) => {
-      await axios.post("http://localhost:8000/users", body)
+      await api.post("/users", body)
     },
     onSuccess: () => {
     toast("Successfully created account.", "success");

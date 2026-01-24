@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { Typography } from "@mui/material";
 import { EnvelopeOpenIcon } from "@phosphor-icons/react";
 import { useParams } from "react-router";
-import axios from "axios";
+import { api } from "~/lib/api";
 
 type PostItem = {
   post_id: number;
@@ -25,10 +25,8 @@ export default function Posts() {
   const { isLoading: postLoading, data: postData } = useQuery<PostsResponse>({
     queryKey: [`posts`, id ?? "all"],
     queryFn: async () => {
-      const url = id
-        ? `http://localhost:8000/posts/topics/${id}`
-        : "http://localhost:8000/posts/topics";
-      const response = await axios.get(url);
+      const url = id ? `/posts/topics/${id}` : "/posts/topics";
+      const response = await api.get(url);
 
       return response.data;
     },
