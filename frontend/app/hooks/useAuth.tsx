@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 import axios from "axios";
 
 type UserResponse = { payload?: { data?: number } };
@@ -20,4 +22,18 @@ export function useAuth() {
     userID: isError ? null : (data?.payload?.data ?? null),
     isLoading,
   };
+}
+
+export function useRequireAuth() {
+  const { userID, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && !userID) {
+      navigate("/sign-in", { replace: true, state: { from: location.pathname } });
+    }
+  }, [isLoading, userID, navigate, location.pathname]);
+
+  return { userID, isLoading };
 }

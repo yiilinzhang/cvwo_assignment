@@ -1,10 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { Alert, Snackbar } from "@mui/material";
 
-type ToastApi = {
-  show: (message: string) => void;
-};
-
 type Severity = "success" | "error" | "info";
 
 const ToastContext = createContext<(msg: string, s?: Severity) => void>(

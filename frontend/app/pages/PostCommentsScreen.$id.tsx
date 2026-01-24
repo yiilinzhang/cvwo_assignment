@@ -172,7 +172,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
             disableRipple
             sx={{ color: "black", borderColor: "black", borderRadius: 20 }}
             onClick={() => {
-              userID ? setIsEditing(true) : toast("Login to leave a comment", "info");
+              userID ? setIsEditing(true) : toast("Login to leave a comment", "error");
             }}
           >
             <PlusIcon />

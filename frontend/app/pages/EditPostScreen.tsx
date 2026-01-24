@@ -15,10 +15,13 @@ type PostItem = {
 }
 
 type PostResponse = { payload?: {data?: PostItem[]}}
+type Topic = { topic_id: number; title: string };
+type TopicsResponse = { payload?: { data?: Topic[] } };
 export default function EditPosts({ params }: Route.ComponentProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const cachedPosts = queryClient.getQueryData<PostResponse>(["posts", "all"]);
+  const cachedTopics = queryClient.getQueryData<TopicsResponse>(["topics"]);
   const postID = params?.id;
   const toast = useToast()
 
@@ -31,9 +34,21 @@ export default function EditPosts({ params }: Route.ComponentProps) {
     initialData: cachedPosts,
   });
 
+  const { data: topicsData } = useQuery<TopicsResponse>({
+    queryKey: ["topics"],
+    queryFn: async () => {
+      const response = await axios.get("http://localhost:8000/topics");
+      return response.data;
+    },
+    initialData: cachedTopics,
+  });
+
   const currPost = postData?.payload?.data?.find(
     (p) => p.post_id === Number(postID)
   );
+  const currTopicTitle = topicsData?.payload?.data?.find(
+    (t) => t.topic_id === currPost?.topic_id
+  )?.title;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,7 +90,7 @@ export default function EditPosts({ params }: Route.ComponentProps) {
             <TextField
               size="small"
               variant="outlined"
-              defaultValue={currPost.topic_id}
+              value={currTopicTitle ?? String(currPost.topic_id)}
               slotProps={{
                 input: {
                   readOnly: true,

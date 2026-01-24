@@ -54,7 +54,7 @@ export default function LoginPage() {
     <form onSubmit={handleSubmit}>
       <div className="w-screen h-screen bg-[#F5F5F5] flex justify-center pt-40">
         <div className="flex flex-col w-96 rounded-2xl h-80 bg-white items-center py-8 gap-3">
-          <Typography >Sign In</Typography>
+          <Typography fontWeight={500} fontSize={20}>Sign In</Typography>
           <div className="flex flex-col">
             <Typography >username</Typography>
             <TextField required size="small" name="username" />

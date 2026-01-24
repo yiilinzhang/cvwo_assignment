@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { useToast } from "~/components/ToastProvider";
+import { useAuth } from "~/hooks/useAuth";
 
 type CommentProps = {
   username: string;
@@ -38,6 +39,7 @@ export function CommentItem({
   isCollapsed,
   onToggleCollapsed,
 }: CommentProps) {
+  const { userID, isLoading: userLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
 
@@ -219,7 +221,11 @@ export function CommentItem({
             <div className="flex flex-row">
               <IconButton
                 aria-label="comment"
-                onClick={() => setIsReplying(true)}
+                onClick={() => {
+                  userID
+                    ? setIsEditing(true)
+                    : toast("Login to leave a comment", "error");
+                }}
               >
                 <ArrowBendUpLeftIcon size={27} color="black" />
               </IconButton>
