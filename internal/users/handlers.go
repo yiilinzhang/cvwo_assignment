@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
@@ -93,14 +94,19 @@ func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Respon
 	_, jwtString, _ := auth.TokenAuth.Encode(map[string]interface{}{
 		"user_id": user.UserID})
 
+	isProd := os.Getenv("ENV") == "production"
+	sameSite := http.SameSiteLaxMode
+	if isProd {
+		sameSite = http.SameSiteNoneMode
+	}
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    jwtString,
 		Path:     "/",
 		MaxAge:   604800,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
+		Secure:   isProd,
+		SameSite: sameSite,
 	}
 
 	http.SetCookie(w, &cookie)
@@ -113,14 +119,19 @@ func (h *Handler) LoginAuth(w http.ResponseWriter, r *http.Request) (*api.Respon
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+	isProd := os.Getenv("ENV") == "production"
+	sameSite := http.SameSiteLaxMode
+	if isProd {
+		sameSite = http.SameSiteNoneMode
+	}
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
+		Secure:   isProd,
+		SameSite: sameSite,
 	}
 
 	http.SetCookie(w, &cookie)

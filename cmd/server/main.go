@@ -27,6 +27,10 @@ func main() {
 	defer pool.Close()
 	r := router.Setup(pool)
 
-	fmt.Println("Listening on port 8000 at http://localhost:8000!")
-	log.Fatalln(http.ListenAndServe(":8000", r))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	fmt.Printf("Listening on port %s\n", port)
+	log.Fatalln(http.ListenAndServe(":"+port, r))
 }

@@ -15,7 +15,10 @@ import (
 func Setup(conn *pgxpool.Pool) chi.Router {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173, https://cvwo-assignment-frontend.onrender.com"},
+		AllowedOrigins: []string{
+			"http://localhost:5173",
+			"https://cvwo-assignment-frontend.onrender.com",
+		},
 		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
