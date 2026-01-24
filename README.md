@@ -24,7 +24,9 @@ Next, run the follow command at the root and configure the JWT_SECRET and the DA
 $ cp .env.example .env 
 
 To start the backend, run 
-$ go run cmd/server/main.go.
+$ go run cmd/server/main.go
+
+To view the backend visit: http://localhost:8000
 
 ### Running the frontend
 Next, cd into the frontend folder and run to make your copy of the env file located at frontend/.env.example
@@ -38,3 +40,8 @@ Run the app:
 npm run dev
 
 To check on the app, visit http://localhost:5173
+
+You may create a new account or use the test user at:
+Username: alice
+Password: alice123
+
