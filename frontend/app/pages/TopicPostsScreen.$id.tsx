@@ -38,9 +38,9 @@ export default function Posts() {
   const currTopic = topics?.find((t) => t.topic_id === Number(id))?.title;
   return (
     <div className="flex flex-col items-center gap-8 py-6 px-20 h-screen">
-      <text className="text-3xl font-bold w-full ">
+      <Typography >
         {currTopic || "All Topics"}
-      </text>
+      </Typography>
 
       {postData?.payload?.data?.length === 0 ? (
         <div className="w-full flex items-center justify-center flex-col pt-40 ">

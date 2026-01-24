@@ -3,7 +3,7 @@ import {
   PencilSimpleLineIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
-import { IconButton } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import { Link } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -34,8 +34,8 @@ export function Post({ id, title, content, isOwner, showChat }: PostProps) {
 
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col py-3 px-4 gap">
-      <text className="text-xl font-semibold">{title}</text>
-      <text className="text-xl ">{content}</text>
+      <Typography className="text-xl font-semibold">{title}</Typography>
+      <Typography className="text-xl ">{content}</Typography>
       <div className="flex justify-end">
        {showChat &&
         <IconButton
