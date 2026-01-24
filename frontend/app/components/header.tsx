@@ -118,7 +118,6 @@ export function Header() {
                 onClose={handleUserClose}
               >
                 <MenuItem onClick={() => logout.mutate()}>Logout</MenuItem>
-                <MenuItem>My Posts</MenuItem>
               </Menu>
             </>
           ) : (

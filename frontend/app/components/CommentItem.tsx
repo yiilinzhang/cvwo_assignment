@@ -16,9 +16,52 @@ type CommentProps = {
   postID: number;
 };
 
-export function Comments({ username, content, isOwner, commentID, postID }: CommentProps) {
+type CreateCommentBody = { 
+  content: string; 
+  parent_comment_id?: number;
+}
+
+//DO NOT call by itself. Use CommentsTree instead.
+export function CommentItem({
+  username,
+  content,
+  isOwner,
+  commentID,
+  postID,
+}: CommentProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
+
   const queryClient = useQueryClient();
+
+  const createComment = useMutation({
+    mutationFn: async (body: CreateCommentBody) =>
+      await axios.post(`http://localhost:8000/posts/${postID}/comments`, body, {
+        withCredentials: true,
+      }),
+
+    onSuccess: () => {
+      alert("Successfully replied comment.");
+      setIsReplying(false);
+      queryClient.invalidateQueries({ queryKey: [`comments`, postID] });
+    },
+
+    onError: () => {
+      alert("Failed to create reply.");
+    },
+  });
+  const replyComment = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const content = String(formData.get("reply") || "").trim();
+    if (!content) {
+      alert("Reply cannot be empty");
+      return;
+    }
+    createComment.mutate({ content: content, parent_comment_id: commentID });
+  };
+
   const updateComment = useMutation({
     mutationFn: async (body: { content: string }) => {
       await axios.patch(`http://localhost:8000/comments/${commentID}`, body, {
@@ -39,9 +82,9 @@ export function Comments({ username, content, isOwner, commentID, postID }: Comm
     const form = e.currentTarget;
     const formData = new FormData(form);
     const content = String(formData.get("comment") || "").trim();
-    if(!content) {
+    if (!content) {
       alert("Comment cannot be empty");
-      return
+      return;
     }
     updateComment.mutate({ content });
   };
@@ -53,14 +96,16 @@ export function Comments({ username, content, isOwner, commentID, postID }: Comm
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", commentID] });
+      queryClient.invalidateQueries({ queryKey: ["comments", postID] });
 
-      alert("Post sucessfully deleted");
+      alert("Comment sucessfully deleted");
     },
   });
   return (
     <div className="bg-[#D9D9D9] w-full flex flex-col p-4 gap">
-      <Typography >{username}</Typography>
+      <Typography fontWeight={600} fontSize={20}>
+        {username}
+      </Typography>
       {isEditing ? (
         <form onSubmit={editComment}>
           <TextField
@@ -73,7 +118,6 @@ export function Comments({ username, content, isOwner, commentID, postID }: Comm
             rows={4}
           />
           <div className="mt-2">
-            
             <Button
               variant="outlined"
               disableRipple
@@ -88,7 +132,6 @@ export function Comments({ username, content, isOwner, commentID, postID }: Comm
               type="submit"
             >
               {updateComment.isPending ? "Saving...." : "Save"}
-              
             </Button>
             <Button
               variant="outlined"
@@ -108,13 +151,59 @@ export function Comments({ username, content, isOwner, commentID, postID }: Comm
         </form>
       ) : (
         <>
-          <Typography >{content}</Typography>
-          <div className="flex justify-end">
-            <IconButton aria-label="comment">
+          <Typography fontSize={20}>{content}</Typography>
+          {isReplying && (
+            <form onSubmit={replyComment}>
+              <TextField
+                name="reply"
+                size="medium"
+                variant="outlined"
+                required
+                multiline
+                rows={4}
+              />
+              <div>
+                <Button
+                  variant="outlined"
+                  disableRipple
+                  disabled={createComment.isPending}
+                  sx={{
+                    color: "black",
+                    borderColor: "black",
+                    borderRadius: 20,
+                    width: 200,
+                    marginRight: 2,
+                  }}
+                  type="submit"
+                >
+                  {createComment.isPending ? "Replying...." : "Reply"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  disableRipple
+                  sx={{
+                    color: "black",
+                    borderColor: "black",
+                    borderRadius: 20,
+                    width: 200,
+                  }}
+                  type="button"
+                  onClick={() => setIsReplying(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+          <div className={`flex justify-end ${isReplying ? "hidden" : ""}`}>
+            <IconButton
+              aria-label="comment"
+              onClick={() => setIsReplying(true)}
+            >
               <ArrowBendUpLeftIcon size={27} color="black" />
             </IconButton>
 
-            {isOwner ? (
+            {isOwner && !isReplying ? (
               <div>
                 <IconButton
                   aria-label="edit_comment"

@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pkg/errors"
-	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 	"github.com/yiilinzhang/cvwo_assignment/internal/models"
 )
 
@@ -30,22 +28,6 @@ func ListTopic(conn *pgxpool.Pool) ([]models.Topic, error) {
 	return topic, nil
 }
 
-func DeleteTopic(conn *pgxpool.Pool, input DeleteTopicInput) error {
-	commandTag, err := conn.Exec(
-		context.Background(),
-		`DELETE FROM topic WHERE topic_id = $1 AND user_id = $2`,
-		input.TopicID,
-		input.UserID,
-	)
-	if err != nil {
-		return err
-	}
-
-	if commandTag.RowsAffected() == 0 {
-		return api.NotFound(errors.New("topic doesnt exist"))
-	}
-	return nil
-}
 
 func InsertTopic(conn *pgxpool.Pool, input CreateTopicInput) error {
 	_, err := conn.Exec(

@@ -2,9 +2,10 @@ package comments
 
 import (
 	"context"
-	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pkg/errors"
+	"github.com/yiilinzhang/cvwo_assignment/internal/api"
 )
 
 func DeleteComment(conn *pgxpool.Pool, input DeleteCommentInput) (error) {
@@ -14,11 +15,11 @@ func DeleteComment(conn *pgxpool.Pool, input DeleteCommentInput) (error) {
 		input.UserID,
 	)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if commandTag.RowsAffected() == 0 {
-		log.Printf("No rows were affected\n")
+		api.NotFound(errors.New("No rows were affected\n"))
 	}
 	return nil
 }
@@ -27,13 +28,16 @@ func ListCommentByPost(conn *pgxpool.Pool, postID int) ([]QueryCommentResponse, 
 	rows, err := conn.Query(
 		context.Background(),
 		`SELECT 
-			comment.comment_id, 
-			comment.content, 
-			comment.user_id, users.name
-		FROM comment 
-		INNER JOIN users
-			ON comment.user_id = users.userid
-		WHERE comment.post_id = $1`,
+			c.comment_id, 
+			c.content, 
+			c.user_id, 
+			u.name,
+			c.parent_comment_id
+		FROM comment c 
+		INNER JOIN users u
+			ON c.user_id = u.userid
+		WHERE c.post_id = $1
+		ORDER BY c.comment_id ASC`,
 		postID,
 	)
 	if err != nil {
@@ -45,7 +49,7 @@ func ListCommentByPost(conn *pgxpool.Pool, postID int) ([]QueryCommentResponse, 
 	comment := []QueryCommentResponse{}
 	for rows.Next() {
 		var c QueryCommentResponse
-		err := rows.Scan(&c.ID, &c.Content, &c.UserID, &c.UserName)
+		err := rows.Scan(&c.ID, &c.Content, &c.UserID, &c.UserName, &c.ParentID)
 		if err != nil {
 			return nil, err
 		}
@@ -57,38 +61,29 @@ func ListCommentByPost(conn *pgxpool.Pool, postID int) ([]QueryCommentResponse, 
 func InsertComment(conn *pgxpool.Pool, input CreateCommentInput) (error) {
 	_, err := conn.Exec(
 		context.Background(),
-		`INSERT INTO comment (content, user_id, post_id)
-		VALUES ($1, $2, $3)`, 
+		`INSERT INTO comment (content, user_id, post_id, parent_comment_id)
+		VALUES ($1, $2, $3, $4)`, 
 		input.Content, 
 		input.UserID, 
 		input.PostID,
+		input.ParentID,
 	)
 	return err
 }
 
-func ListCommentByID(conn *pgxpool.Pool, commentID int) ([]QueryCommentResponse, error) {
-	rows, err := conn.Query(
+func ListCommentByID(conn *pgxpool.Pool, commentID int) (QueryCommentResponse, error) {
+	var c QueryCommentResponse
+	err := conn.QueryRow(
 		context.Background(),
 		`SELECT content, user_id
 		FROM comment 
 		WHERE comment_id = $1`,
 		commentID,
-	)
+	).Scan(&c.Content, &c.UserID)
 	if err != nil {
-		return nil, err
+		return QueryCommentResponse{}, err
 	}
-
-	defer rows.Close()
-
-	comment := []QueryCommentResponse{}
-	for rows.Next() {
-		var c QueryCommentResponse
-		if err := rows.Scan(&c.Content, &c.UserID); err != nil {
-			return nil, err
-		}
-		comment = append(comment, c)
-	}
-	return comment, nil
+	return c, nil
 }
 
 func UpdateComment(conn *pgxpool.Pool, input UpdateCommentInput) (error) {
@@ -99,4 +94,14 @@ func UpdateComment(conn *pgxpool.Pool, input UpdateCommentInput) (error) {
 		input.CommentID, 
 		input.UserID)
 	return err
+}
+
+func GetCommentPostID(conn *pgxpool.Pool, commentID int) (int, error) {
+    var postID int
+    err := conn.QueryRow(
+        context.Background(),
+        `SELECT post_id FROM comment WHERE comment_id = $1`,
+        commentID,
+    ).Scan(&postID)
+    return postID, err
 }

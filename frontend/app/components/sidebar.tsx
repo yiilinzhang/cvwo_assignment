@@ -21,7 +21,7 @@ export function SideBar({
 }) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
-  const expandSidebar = () => setExpanded(!expanded);
+  const toggle = () => setExpanded(!expanded);
   const deleteTopic = useMutation({
     mutationFn: async (id: number) => {
       await axios.delete(`http://localhost:8000/topics/${id}`, {
@@ -35,43 +35,44 @@ export function SideBar({
   });
   return (
     <main>
-      <div className={`${expanded ? `visible` : `invisible`}`}>
+      <div
+        className={`fixed inset-0 top-20 z-40 ${expanded ? "pointer-events-auto" : "pointer-events-none"}`}
+      >
         <div
-          className="bg-gray-600 opacity-20 flex fixed top-20 left-0 w-screen h-screen z-40"
-          onClick={expandSidebar}
-        ></div>
-        <div className="bg-white top-20 gap-2 h-screen fixed w-80 left-0 px-3 shadow flex flex-col z-50">
+          className={`bg-zinc-400 transition-opacity duration-300 ease-out h-screen ${expanded ? "opacity-40 backdrop-blur-sm" : "opacity-0"}`}
+          onClick={toggle}
+        />
+        <div
+          className={`bg-white duration-300 ease-in-out top-20 gap-2 h-screen fixed w-80 px-3 flex flex-col ${expanded ? "translate-x-0" : "-translate-x-full"}`}
+        >
           <Button
             component={Link}
             to={`/`}
-            onClick={expandSidebar}
+            onClick={toggle}
             startIcon={<HouseIcon />}
             sx={{ color: "black" }}
           >
-            Home
+            <Typography fontSize={17}>Home</Typography>
           </Button>
           <Button
             startIcon={<ArrowCircleUpRightIcon />}
             sx={{ color: "black" }}
           >
-            Popular
+            <Typography fontSize={17}>Popular</Typography>
           </Button>
 
-          <hr />
-          <Typography fontSize={25}>Others</Typography>
+          <hr/>
           {topicsList.map((item) => {
             return (
-              <div className="flex flex-row  ">
+              <div className="flex flex-row" key={item.topic_id}>
                 <Button
                   component={Link}
                   to={`/posts/${item.topic_id}`}
                   variant="text"
-                  onClick={expandSidebar}
+                  onClick={toggle}
                   sx={{ textTransform: "none", color: "black", py: 1.5 }}
                 >
-                  <Typography sx={{ fontSize: "20px" }}>
-                    {item.title}
-                  </Typography>
+                  <Typography fontSize={20}>{item.title}</Typography>
                 </Button>
                 {userID !== null && item.user_id === userID && (
                   <IconButton
@@ -88,7 +89,7 @@ export function SideBar({
       </div>
       <IconButton
         disableRipple
-        onClick={expandSidebar}
+        onClick={toggle}
         sx={{
           borderRadius: "50%",
           width: "60px",

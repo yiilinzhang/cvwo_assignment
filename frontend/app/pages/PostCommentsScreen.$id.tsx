@@ -1,4 +1,4 @@
-import { Comments } from "~/components/Comments";
+import { CommentItem } from "~/components/CommentItem";
 import { Post } from "../components/Post";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "~/hooks/useAuth";
@@ -8,6 +8,7 @@ import { useState, type FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/PostCommentsScreen.$id";
+import { CommentsTree } from "~/components/CommentsTree";
 
 type Comment = {
   comment_id: number;
@@ -164,7 +165,7 @@ export default function PostComments({ params }: Route.ComponentProps) {
           </Button>
         )}
       </div>
-      {data?.payload?.data?.map((comment) => (
+      {/* {data?.payload?.data?.map((comment) => (
         <Comments
           key={comment.comment_id}
           username={comment.name}
@@ -173,7 +174,8 @@ export default function PostComments({ params }: Route.ComponentProps) {
           commentID={comment.comment_id}
           postID={postID}
         />
-      ))}
+      ))} */}
+      <CommentsTree comments={data?.payload?.data} postID={postID} userID={userID}/>
     </div>
   );
 }

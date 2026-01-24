@@ -41,7 +41,6 @@ func PrivateRoutes(
 			r.Post("/posts/{postID}/comments", Routing(commentsHandler.Create))
 
 			r.Post("/topics", Routing(topicsHandler.Create))
-			r.Delete("/topics/{topicID}", Routing(topicsHandler.Delete))
 
 			r.Get("/comments/{commentID}", Routing(commentsHandler.ListByID))
 			r.Delete("/comments/{commentID}", Routing(commentsHandler.Delete))

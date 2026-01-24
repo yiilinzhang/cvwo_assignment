@@ -16,7 +16,7 @@ import (
 type Handler struct{ Conn *pgxpool.Pool }
 
 const (
-	SuccessfulCreateCommentsMessage = "Successfully listed comments"
+	SuccessfulCreateCommentsMessage = "Successfully created comments"
 	SuccessfulListCommentsMessage   = "Successfully listed comments"
 	SuccessfulUpdateCommentsMessage = "Successfully updated comments"
 	SuccessfulDeleteCommentsMessage = "Successfully deleted comments"
@@ -39,7 +39,9 @@ func (h *Handler) ListByPosts(w http.ResponseWriter, r *http.Request) (*api.Resp
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveComments, "comments.ListByPosts"))
 	}
 
-	data, err := json.Marshal(postList)
+	tree := MakeCommentTree(postList)
+
+	data, err := json.Marshal(tree)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrEncodeComments, "comments.ListByPosts"))
 	}
@@ -85,7 +87,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response,
 
 	userID, err := handlers.UserIDFromContext(r)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrDeleteComments, "comments.Delete"))
+		return nil, err
 	}
 
 	var input DeleteCommentInput
@@ -133,7 +135,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) (*api.Response,
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	PostID, err := strconv.Atoi(chi.URLParam(r, "postID"))
+	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
 		return nil, api.BadRequest(errors.New("Invalid postID"))
 	}
@@ -144,13 +146,26 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) (*api.Response,
 	}
 
 	var input CreateCommentInput
+	input.UserID = userID
+	input.PostID = postID
 	if err := handlers.DecodeJSON(r, &input); err != nil {
 		return nil, err
 	}
-	input.UserID = userID
-	input.PostID = PostID
 
-	//TODO adjust this after i decide if i wna tot return anything to fornt end chekc if okay to leave just return err
+	if input.Content == "" {
+		return nil, api.BadRequest(errors.New("content cannot be empty"))
+	}
+
+	if input.ParentID != nil {
+        parentPostID, err := GetCommentPostID(h.Conn, *input.ParentID)
+        if err != nil {
+            return nil, api.BadRequest(errors.New("parent comment not found"))
+        }
+        if parentPostID != postID {
+            return nil, api.BadRequest(errors.New("parent comment does not belong to this post"))
+        }
+    }
+
 	if err = InsertComment(h.Conn, input); err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrCreateComments, "comments.Create"))
 	}

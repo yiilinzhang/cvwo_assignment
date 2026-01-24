@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/yiilinzhang/cvwo_assignment/internal/api"
@@ -47,31 +45,6 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) (*api.Response, e
 			Data: data,
 		},
 		Messages: []string{SuccessfulListTopicsMessage},
-	}, nil
-}
-
-func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	topicID, err := strconv.Atoi(chi.URLParam(r, "topicID"))
-	if err != nil {
-		return nil, api.BadRequest(errors.New("invalid topicID"))
-	}
-
-	userID, err := handlers.UserIDFromContext(r)
-	if err != nil {
-		return nil, err
-	}
-
-	var input DeleteTopicInput
-	input.TopicID = topicID
-	input.UserID = userID
-
-	if err = DeleteTopic(h.Conn, input); err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf(ErrDeleteTopics, "topics.Delete"))
-	}
-
-	return &api.Response{
-		Payload:  api.Payload{},
-		Messages: []string{SuccessfulDeleteTopicsMessage},
 	}, nil
 }
 
