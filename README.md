@@ -4,8 +4,20 @@ This sample CVWO project is written in golang + react. It can be accessed via th
 
 ## Getting Started
 
+### Deployed app
+Access the live app (frontend) at: https://cvwo-assignment-frontend.onrender.com
+Test account:
+Username: test
+password: test
+ 
+### Running locally
 ### Running the backend
-Before running, create a new DB with the SQL in scheme.sql.
+Before running, create a new DB with the SQL in schema.sql at /internal/db/schema.sql
+$ createdb cvwo_assignment
+$ psql -d cvwo_assignment -f internal/db/schema.sql
+
+To seed values:
+psql -d cvwo_assignment -f internal/db/seeds.sql
 
 Next, run the follow command at the root and configure the JWT_SECRET and the DATABASE_URL in the new .env file.
 
@@ -15,14 +27,14 @@ To start the backend, run
 $ go run cmd/server/main.go.
 
 ### Running the frontend
-Next, cd into the frontend folder and run to make your copy of the env file.
+Next, cd into the frontend folder and run to make your copy of the env file located at frontend/.env.example
 
 $ cp .env.example .env
 
-Next install dependencies with:
+Install dependencies:
 $ npm install
 
-Run the app with:
+Run the app:
 npm run dev
 
 To check on the app, visit http://localhost:5173
