@@ -28,7 +28,7 @@ $ openssl rand -base64 32
 Paste this in the env file. 
 
 To start the backend, run 
-$ go run cmd/server/main.go.
+$ go run cmd/server/main.go
 
 ### Running the frontend
 Next, cd into the frontend folder and run to make your copy of the env file located at frontend/.env.example
@@ -42,3 +42,7 @@ Run the app:
 npm run dev
 
 To check on the app, visit http://localhost:5173
+
+You may create a new account or use the test user at:
+Username: alice
+Password: alice123

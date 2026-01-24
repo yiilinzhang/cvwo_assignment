@@ -165,7 +165,9 @@ export function CommentItem({
                 variant="outlined"
                 required
                 multiline
-                rows={4}
+                rows={2}
+                fullWidth
+                sx={{ mb: 2 }}
               />
               <div>
                 <Button
@@ -217,7 +219,7 @@ export function CommentItem({
                 aria-label="comment"
                 onClick={() => {
                   userID
-                    ? setIsEditing(true)
+                    ? setIsReplying(true)
                     : toast("Login to leave a comment", "error");
                 }}
               >
