@@ -30,6 +30,8 @@ Paste this in the env file.
 To start the backend, run 
 $ go run cmd/server/main.go
 
+To view the backend visit: http://localhost:8000
+
 ### Running the frontend
 Next, cd into the frontend folder and run to make your copy of the env file located at frontend/.env.example
 
