@@ -48,3 +48,15 @@ To check on the app, visit http://localhost:5173
 You may create a new account or use the test user at:
 Username: alice
 Password: alice123
+
+###AI Usage:
+As per the project requirement, I did not use AI to generate the code for the project and mainly used it to give feedback and discuss implementations, like figuring out if i should structure my project like
+-> Posts
+- handlers.go
+- dataaccess.go
+Or
+->handler
+-posts.go
+-comments.go
+
+It also helped as an extra buffed up google search in some cases. However I did ask it to generate the SQL command to seed an initial round of posts/comments/users and topics. I provided the format and asked it to generate the fake posts/comments and topics for me to get started with which I felt was more productive than doing it manually or using lorem ipsum texts.
