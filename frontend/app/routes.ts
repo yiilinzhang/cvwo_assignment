@@ -10,5 +10,5 @@ export default [
     route("editpost/:id", "pages/EditPostScreen.tsx"),
   ]),
   route("sign-in", "pages/LoginScreen.tsx"),
-  route("sign-up", "pages/SignupScreen.tsx"),
+  route("sign-up", "pages/SignUpScreen.tsx"),
 ] satisfies RouteConfig;
