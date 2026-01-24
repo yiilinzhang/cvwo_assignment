@@ -24,11 +24,13 @@ export function Header() {
     return response.data;
   };
 
-  const toast = useToast()
+  const toast = useToast();
 
   const { isLoading, data } = useQuery<TopicsResponse>({
     queryKey: [`topics`],
     queryFn: getTopics,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const handleUserClick = (event: MouseEvent<HTMLElement>) => {
@@ -48,22 +50,21 @@ export function Header() {
   };
 
   const logout = useMutation({
-    mutationFn: async () =>
-      await api.post("/logout", null),
+    mutationFn: async () => await api.post("/logout", null),
     onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["me"] });
-        toast("Successfully logged out.", "success");
-        handleUserClose();
-        navigate("/");
-      },
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      toast("Successfully logged out.", "success");
+      handleUserClose();
+      navigate("/");
+    },
     onError: () => toast("Failed to logout", "error"),
   });
-  
-  if (isLoading || userLoading) return <div>Loading...</div>;
+
+  const topics = data?.payload?.data ?? []
   return (
     <div className="h-20 sticky top-0 z-50">
       <div className="h-20 bg-[#9BE3FF] ps-4 flex items-center gap-4">
-        <SideBar topicsList={data?.payload?.data} />
+        <SideBar topicsList={topics} />
         <Link to="/">
           <Typography fontWeight={500} color="white" fontSize={37}>
             CVWO
